@@ -1,39 +1,43 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
+import { Stack } from "expo-router";
+import { ThemeProvider } from "@react-navigation/native";
+import "./global.css";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { MyDarkTheme } from "@/theme"; // import custom theme
+import { ReactNode } from "react";
+import { View } from "react-native";
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+function DarkThemeWrapper({ children }: { children: ReactNode }) {
+  return (
+    <View style={{ flex: 1, backgroundColor: MyDarkTheme.colors.background }}>
+      {children}
+    </View>
+  );
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <AuthProvider>
+      <DarkThemeWrapper>
+        <ThemeProvider value={MyDarkTheme}>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              statusBarStyle: "light",
+              statusBarBackgroundColor: "#000000",
+            }}>
+            <Stack.Screen
+              name="quickOrderModal"
+              options={{
+                presentation: "modal",
+                animation: "slide_from_bottom",
+              }}
+            />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="login" />
+            <Stack.Screen name="register" />
+          </Stack>
+        </ThemeProvider>
+      </DarkThemeWrapper>
+    </AuthProvider>
   );
 }
