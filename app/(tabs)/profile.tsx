@@ -6,105 +6,88 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRouter, useFocusEffect } from "expo-router";
+import { useRouter, Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import { useAuthGuard } from "@/lib/hooks/useAuthGuard";
+import UserDetails from "../components/profile/UserDetails";
+import HeadingText from "../components/extras/HeadingText";
 
 const Profile = () => {
-  const { user, logout } = useAuth();
+  const { user, logout } = useAuthStore();
   const router = useRouter();
+  const dateJoined = user?.createdAt ? new Date(user.createdAt) : null;
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (!user) {
-        router.push("/login");
-      }
-    }, [user]),
-  );
+  //autguard
+  useAuthGuard();
 
+  //fallback null
   if (!user) {
     return null;
   }
 
-  //DRY PARAH COKKK, MALAS BENERIN.
   return (
-    <SafeAreaView className="flex-1 gap-y-6 bg-black px-6 py-8 justify-start">
+    <SafeAreaView className="flex-1 gap-y-6 bg-background px-6 py-8 justify-start">
       {/* Avatar */}
-      <View className="w-24 h-24 rounded-full bg-neutral-500 justify-center items-center self-center mb-6">
-        <Text className="text-4xl font-bold text-white">
+      <View className="w-24 h-24 rounded-full bg-primary border justify-center items-center self-center mb-6">
+        <Text className="text-4xl font-bold text-background">
           {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
         </Text>
       </View>
 
       {/* Title */}
-      <Text className="text-3xl font-bold text-white text-center mb-8">
+      <HeadingText className="text-3xl font-bold text-text text-center mb-8">
         {user?.name || "PROFILE"}
-      </Text>
+      </HeadingText>
 
       {/* User Info */}
-      <View className="bg-zinc-900 rounded-2xl overflow-hidden">
-        <View className="flex-row justify-between p-4">
-          <Text className="text-base text-gray-400 font-medium">Name</Text>
-          <Text className="text-base text-white font-semibold">
-            {user?.name || "Not set"}
-          </Text>
-        </View>
-        <View className="h-[1px] bg-zinc-700" />
-        <View className="flex-row justify-between p-4">
-          <Text className="text-base text-gray-400 font-medium">Email</Text>
-          <Text className="text-base text-white font-semibold">
-            {user?.email || "Not set"}
-          </Text>
-        </View>
+      <View className="space-y-2 border border-border/20 bg-secondary/20 py-4 px-2 rounded-lg">
+        <UserDetails label={"Name"} data={user.name} />
+        <UserDetails label={"Email"} data={user.email} />
+        <UserDetails label={"Member Since"} createdAt={dateJoined} />
       </View>
 
       {/* Status Summary */}
-      <Text className="text-gray-300 font-bold text-lg pl-2">
+      <Text className="text-secondary font-bold text-lg pl-2">
         Order Summary
       </Text>
-      <View className="flex-row justify-between bg-zinc-900 rounded-2xl overflow-hidden">
-        <TouchableOpacity
-          className=" py-6 items-center flex-1"
-          onPress={() => {
-            console.log("Waiting for Payment pressed");
-          }}>
-          <Ionicons name="hourglass-outline" size={28} color="gold" />
-          <View className="mt-2 h-10 justify-center">
-            <Text className="text-gray-300 font-semibold text-sm text-center">
-              Waiting for Payment
-            </Text>
-          </View>
-        </TouchableOpacity>
+      <View className="flex-row justify-between bg-backgroundSecondary rounded-2xl overflow-hidden">
+        <Link href={"/(orders)/ordersPending"} asChild>
+          <TouchableOpacity className="py-6 items-center flex-1">
+            <Ionicons name="hourglass-outline" size={28} color="#ffc107" />
+            <View className="mt-2 h-10 justify-center">
+              <Text className="text-text font-semibold text-sm text-center">
+                Waiting for Payment
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </Link>
 
-        <View className="w-[1px] bg-zinc-700" />
+        <View className="w-[1px] bg-border" />
 
         <TouchableOpacity
           className=" py-6 items-center flex-1"
           onPress={() => {
             console.log("Processing pressed");
           }}>
-          <Ionicons
-            name="reload-circle-outline"
-            size={28}
-            color="deepskyblue"
-          />
+          <Ionicons name="reload-circle-outline" size={28} color="#00bfff" />
           <View className="mt-2 h-10 justify-center">
-            <Text className="text-gray-300 font-semibold text-sm text-center">
+            <Text className="text-text font-semibold text-sm text-center">
               Processing
             </Text>
           </View>
         </TouchableOpacity>
 
-        <View className="w-[1px] bg-zinc-700" />
+        <View className="w-[1px] bg-border" />
 
         <TouchableOpacity
           className="py-6 items-center flex-1"
           onPress={() => {
             console.log("Completed pressed");
           }}>
-          <Ionicons name="checkmark-outline" size={28} color="lightgreen" />
+          <Ionicons name="checkmark-outline" size={28} color="#32cd32" />
           <View className="mt-2 h-10 justify-center">
-            <Text className="text-gray-300 font-semibold text-sm text-center">
+            <Text className="text-text font-semibold text-sm text-center">
               Completed
             </Text>
           </View>
@@ -119,7 +102,7 @@ const Profile = () => {
         }}
         className="mt-auto py-3 rounded-xl items-center">
         <View className="flex-row gap-x-2 items-center">
-          <Text className="text-red-600 font-bold text-base ">Sign Out</Text>
+          <Text className="text-red-600 font-bold text-base">Sign Out</Text>
           <Ionicons name="log-out-outline" size={28} color="red" />
         </View>
       </Pressable>

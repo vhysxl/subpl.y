@@ -1,14 +1,19 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { Bell } from "lucide-react-native";
+import { colors } from "@/constants/colors";
 
 const Header = () => {
   return (
-    <View className="px-4 py-5 border-b border-zinc-800 flex-row justify-between items-center">
-      <Text className="text-white font-bold text-2xl">SUBPL.Y</Text>
+    <View className="bg-background border-b border-white px-4 py-5 flex-row justify-between items-center">
+      <Text
+        className="text-primary text-2xl"
+        style={{ fontFamily: "Fredoka SemiBold", fontSize: 25 }}>
+        SUBPL.Y
+      </Text>
       <View className="flex-row">
         <TouchableOpacity>
-          <Bell className="pr-4" size={24} color={"white"} />
+          <Bell size={24} color={colors.secondary} className="pr-4" />
         </TouchableOpacity>
       </View>
     </View>

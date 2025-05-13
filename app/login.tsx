@@ -1,32 +1,24 @@
-import {
-  View,
-  Text,
-  TextInput,
-  SafeAreaView,
-  TouchableOpacity,
-  ActivityIndicator,
-  BackHandler,
-} from "react-native"; // ← Tambahkan ActivityIndicator di sini
-import React, { useEffect, useState } from "react";
-import { Link, Redirect } from "expo-router";
-import { useAuth } from "@/contexts/AuthContext";
+import { SafeAreaView, BackHandler, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Link, useFocusEffect } from "expo-router";
 import SystemMsg from "./components/extras/SystemMsg";
 import { useRouter } from "expo-router";
-import { loginSchema } from "@/lib/validation";
+import { loginSchema } from "@/lib/validation/validation";
+import AuthField from "./components/auth/AuthField";
+import AuthButton from "./components/auth/AuthButton";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import BodyText from "./components/extras/BodyText";
+import HeadingText from "./components/extras/HeadingText";
 
 const Login = () => {
-  const { login, authLoading, user } = useAuth(); //ngambil dari context
+  const { login, authLoading, user } = useAuthStore(); //zustand
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  if (user) {
-    //redirect kalau ada user authenticated
-    return <Redirect href={"/"} />;
-  }
-
+  //back handler
   useEffect(() => {
     //back to home handler
     const backAction = () => {
@@ -41,6 +33,18 @@ const Login = () => {
 
     return () => backHandler.remove();
   }, []);
+
+  //cleanup logic
+  useFocusEffect(
+  
+    useCallback(() => {
+      
+
+      return () => {
+        setError(""); 
+      };
+    }, []),
+  );
 
   //login logic
   const handleLogin = async () => {
@@ -98,7 +102,6 @@ const Login = () => {
       //login pake context
       await login(result.user, result.token);
 
-      //redirect kalau gk kebegal
       router.replace("/");
     } catch (error) {
       console.error("Login error:", error);
@@ -108,52 +111,45 @@ const Login = () => {
     }
   };
 
-  //Redundant parah nanti di benerin
   return (
-    <SafeAreaView className="flex-1 bg-black justify-center px-6">
-      <Text className="text-white text-3xl font-bold mb-8">Login</Text>
+    <SafeAreaView className="flex-1 bg-background justify-center px-6">
+      <View>
+        <HeadingText
+          className="text-text text-center mx-auto w-2/3 text-3xl mb-8"
+          style={{ fontFamily: "Fredoka SemiBold" }}>
+          Welcome back to Subpl.y
+        </HeadingText>
+      </View>
 
-      <Text className="text-white mb-2">Email</Text>
-      <TextInput
-        className="bg-zinc-800 text-white px-4 py-3 rounded-lg mb-4"
+      <AuthField
+        name="Email"
         placeholder="Enter your email"
-        autoCapitalize="none"
-        placeholderTextColor="#a1a1aa"
-        keyboardType="email-address"
         value={email}
-        onChangeText={setEmail}
+        setValue={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
       />
 
-      <Text className="text-white mb-2">Password</Text>
-      <TextInput
-        className="bg-zinc-800 text-white px-4 py-3 rounded-lg mb-6"
+      <AuthField
+        name="Password"
         placeholder="Enter your password"
-        autoCapitalize="none"
-        placeholderTextColor="#a1a1aa"
-        secureTextEntry
         value={password}
-        onChangeText={setPassword}
+        setValue={setPassword}
+        keyboardType="default"
+        autoCapitalize="none"
+        secureTextEntry
       />
 
       {error && <SystemMsg message={error} type="error" />}
 
-      <TouchableOpacity
-        className="bg-white py-3 rounded-lg items-center mb-4"
-        onPress={handleLogin}
-        disabled={isLoading || authLoading}>
-        {isLoading ? (
-          <ActivityIndicator color="black" />
-        ) : (
-          <Text className="text-black font-medium">Login</Text>
-        )}
-      </TouchableOpacity>
+      <AuthButton isLoading={isLoading} onPress={handleLogin} text="Login" />
 
-      <Text className="text-zinc-400 text-center">
-        Don't have an account?{" "}
-        <Link href={"/register"} className="text-white">
+      <BodyText className="text-text text-center">
+        New to Subpl.y?{" "}
+        <Link href={"/register"} className="text-secondary underline">
           Register
         </Link>
-      </Text>
+      </BodyText>
     </SafeAreaView>
   );
 };

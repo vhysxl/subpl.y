@@ -1,28 +1,25 @@
 import React from "react";
-import { Tabs, usePathname } from "expo-router";
+import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuth } from "@/contexts/AuthContext";
+import { colors } from "@/constants/colors";
 
 const _layout = () => {
-  const { user } = useAuth();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#ffffff",
-        tabBarInactiveTintColor: "#8E8E93",
+        tabBarActiveTintColor: colors.primary, // vibrant green
+        tabBarInactiveTintColor: "#8497e6", // secondary blue
         animation: "shift",
         tabBarStyle: {
-          backgroundColor: "#000000",
-          borderTopWidth: 0.9,
+          backgroundColor: colors.background, // white background
           elevation: 0,
           height: 60,
           paddingBottom: 10,
-          borderColor: "#3f3f46", // Add this for the bottom border color
         },
         tabBarLabelStyle: {
           fontSize: 12,
-          fontWeight: "bold",
+          color: colors.text,
+          fontFamily: "Fredoka Regular",
         },
       }}>
       <Tabs.Screen
@@ -30,7 +27,6 @@ const _layout = () => {
         options={{
           title: "HOME",
           headerShown: false,
-
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home" : "home-outline"}
@@ -48,20 +44,6 @@ const _layout = () => {
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "game-controller" : "game-controller-outline"}
-              size={20}
-              color={color}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="topup"
-        options={{
-          title: "TOPUP",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "wallet" : "wallet-outline"}
               size={20}
               color={color}
             />
