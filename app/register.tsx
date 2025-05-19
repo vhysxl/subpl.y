@@ -1,30 +1,21 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { Link, Redirect, useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  ActivityIndicator,
-  SafeAreaView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-} from "react-native";
+import { Link, Redirect, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { SafeAreaView, Text, View } from "react-native";
 import SystemMsg from "./components/extras/SystemMsg";
-import { registerSchema } from "@/lib/validation";
+import { registerSchema } from "@/lib/validation/validation";
 import AuthField from "./components/auth/AuthField";
+import AuthButton from "./components/auth/AuthButton";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 
 export default function RegisterPage() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const router = useRouter();
-
-  if (user) {
-    //redirect kalau ada user authenticated
-    return <Redirect href={"/"} />;
-  }
 
   //register logic
   const handleRegister = async () => {
@@ -35,6 +26,11 @@ export default function RegisterPage() {
       //validation layer 1 (kgk butuh sih cuma bodo amat)
       if (!email || !name || !password) {
         setError("Please fill all the required fields");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("Password not match with confirm password");
         return;
       }
 
@@ -77,6 +73,11 @@ export default function RegisterPage() {
         },
       );
 
+      if (user) {
+        //redirect kalau ada user authenticated
+        return <Redirect href={"/"} />;
+      }
+
       //parse result
       const result = await response.json();
 
@@ -96,10 +97,27 @@ export default function RegisterPage() {
     }
   };
 
-  //Redundant parah nanti di benerin
+  //cleanup logic
+  useFocusEffect(
+    //cleanup error handler
+    useCallback(() => {
+      // Tidak perlu melakukan apa-apa saat fokus
+
+      return () => {
+        setError(""); // Bersihkan error saat screen tidak lagi difokuskan
+      };
+    }, []),
+  );
+
   return (
-    <SafeAreaView className="flex-1 bg-black justify-center px-6">
-      <Text className="text-white text-3xl font-bold mb-8">Register</Text>
+    <SafeAreaView className="flex-1 bg-background justify-center px-6">
+      <View>
+        <Text
+          className="text-black text-center mx-auto w-2/3 text-3xl mb-8"
+          style={{ fontFamily: "Fredoka SemiBold" }}>
+          Create an account
+        </Text>
+      </View>
       <AuthField
         autoCapitalize="words"
         name="Name"
@@ -123,23 +141,27 @@ export default function RegisterPage() {
         value={password}
         setValue={setPassword}
       />
-
+      <AuthField
+        autoCapitalize="none"
+        secureTextEntry
+        placeholder="Type the password again"
+        name="Confirm Password"
+        value={confirmPassword}
+        setValue={setConfirmPassword}
+      />
       {error && <SystemMsg message={error} type="error" />}
 
-      {isLoading ? (
-        <ActivityIndicator color={"black"} />
-      ) : (
-        <TouchableOpacity
-          className="bg-white py-3 rounded-lg items-center mb-4"
-          disabled={isLoading}
-          onPress={handleRegister}>
-          <Text className="text-black text-base font-semibold">Register</Text>
-        </TouchableOpacity>
-      )}
+      <AuthButton
+        isLoading={isLoading}
+        onPress={handleRegister}
+        text={"Register"}
+      />
 
-      <Text className="text-zinc-400 text-center">
-        Already have an account?{" "}
-        <Link href="/login" className="text-white">
+      <Text
+        className="text-text text-center "
+        style={{ fontFamily: "Nunito Regular" }}>
+        Already Subpl.y member?{" "}
+        <Link href="/login" className="text-secondary underline">
           Login
         </Link>
       </Text>

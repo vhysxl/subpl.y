@@ -2,4 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Divider */
+@layer base {
+  .font-geistRegular {
+    font-family: "geistRegular";
+  }
+}

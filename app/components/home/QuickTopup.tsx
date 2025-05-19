@@ -8,90 +8,56 @@ import {
   Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "expo-router";
-import { Products } from "@/type";
+import { GameGroup, Products } from "@/type";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import { useProductStore } from "@/lib/stores/useProductStores";
+import { colors } from "@/constants/colors";
+import BodyText from "../extras/BodyText";
+import FailedMsg from "../extras/FailedMsg";
 
 const QuickTopup = () => {
-  const [selectedGameSlug, setSelectedGameSlug] = useState("");
+  const [selectedGame, setSelectedGame] = useState("");
   const [target, setTarget] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [products, setProducts] = useState<Products[]>([]);
-  const [voucherOptions, setVoucherOptions] = useState<Products[]>([]);
-  const [popularGames, setPopularGames] = useState<
-    { gameId: string; gameName: string }[]
-  >([]);
-  const [status, setStatus] = useState("");
-  const { user } = useAuth();
+  const [amountOptions, setAmountOptions] = useState<Products[]>([]);
+  const [popularGames, setPopularGames] = useState<GameGroup[]>([]);
+  const [status, setStatus] = useState<string | null>("");
+  const { user } = useAuthStore();
+  const { products, loading, error, fetchProducts } = useProductStore(); //zustand
   const router = useRouter();
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setStatus("Loading voucher options...");
+  //error
+  useEffect(() => {
+    setStatus(error);
+  }, [error]);
 
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/products`,
-      );
-      const result = await response.json();
+  //data awal
+  useEffect(() => {
+    if (!products || products.length === 0) return;
 
-      if (!result.success) throw new Error("Failed to fetch");
+    const filtered = products.filter((game) => game.isPopular === true);
 
-      const productsData: Products[] = result.data.products;
+    if (filtered.length > 0) {
+      setPopularGames(filtered);
+      setSelectedGame(filtered[0].gameId);
 
-      // Game populer unik
-      // Buat Map untuk menyimpan game populer tanpa duplikat berdasarkan gameId
-      const gameMap = new Map();
-      for (const product of productsData) {
-        // Jika produk populer dan gameId-nya belum dimasukkan ke Map
-        if (product.isPopular && !gameMap.has(product.gameId)) {
-          // Simpan info game (hanya sekali per gameId)
-          gameMap.set(product.gameId, {
-            gameId: product.gameId,
-            gameName: product.gameName,
-          });
-        }
-      }
-
-      // Ubah isi Map menjadi array of game objects
-      const gamesArray = Array.from(gameMap.values());
-
-      // Validasi: lempar error jika tidak ada game populer ditemukan
-      if (gamesArray.length === 0) {
-        throw new Error("No popular games found");
-      }
-
-      setPopularGames(gamesArray);
-      setProducts(productsData);
-
-      const firstGame = gamesArray[0];
-      setSelectedGameSlug(firstGame.gameId);
-      filterVoucherOptions(firstGame.gameId, productsData);
-
-      setStatus("");
-    } catch (error) {
-      setStatus(
-        "Failed to load data. Please check your connection or try again later.",
-      );
-      console.error(error);
-    } finally {
-      setLoading(false);
+      const selectedGameProducts =
+        filtered.find((game) => game.gameId === filtered[0].gameId)?.products ||
+        [];
+      setAmountOptions(selectedGameProducts);
     }
-  };
+  }, [products]);
 
-  const filterVoucherOptions = (gameSlug: string, data: Products[]) => {
-    const filtered = data.filter((product) => product.gameId === gameSlug);
-    setVoucherOptions(filtered);
-  };
-
+  //update tergantung options
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (!popularGames.length) return;
 
-  useEffect(() => {
-    filterVoucherOptions(selectedGameSlug, products);
-  }, [selectedGameSlug]);
+    const gameProducts =
+      popularGames.find((game) => game.gameId === selectedGame)?.products || [];
+    setAmountOptions(gameProducts);
+  }, [selectedGame, popularGames]);
 
+  //handler order
   const handleQuickOrder = async (option: Products) => {
     if (!user) {
       router.push("/login");
@@ -111,91 +77,97 @@ const QuickTopup = () => {
       gameName: option.gameName,
       price: option.price,
       quantity: 1,
+      currency: option.currency,
     };
 
     router.push({
-      pathname: "/quickOrderModal",
+      pathname: "/OrderModal",
       params: payload,
     });
   };
 
   return (
-    <View className="p-4">
-      <Text className="text-white text-lg font-medium mb-2">Select Game</Text>
-      <Picker
-        selectedValue={selectedGameSlug}
-        onValueChange={(itemValue) => setSelectedGameSlug(itemValue)}
-        style={{
-          color: "white",
-          backgroundColor: "#27272a",
-          borderRadius: 10,
-          paddingHorizontal: 10,
-        }}>
-        {popularGames.map((game) => (
-          <Picker.Item
-            key={game.gameId}
-            label={game.gameName}
-            value={game.gameId}
-          />
-        ))}
-      </Picker>
+    <View className="p-4 gap-4">
+      {/* Game Picker */}
+      <View>
+        <BodyText className="text-text text-lg font-medium mb-2">
+          Select Game
+        </BodyText>
+        <View className="bg-primary border border-border rounded-xl overflow-hidden">
+          {popularGames.length > 0 ? (
+            <Picker
+              style={{ color: colors.text, fontFamily: "Nunito Regular" }}
+              selectedValue={selectedGame}
+              onValueChange={(value) => setSelectedGame(value)}>
+              {popularGames.map((game) => (
+                <Picker.Item
+                  key={game.gameId}
+                  label={game.gameName}
+                  value={game.gameId}
+                />
+              ))}
+            </Picker>
+          ) : (
+            <BodyText className="text-background p-4">
+              Games failed to load
+            </BodyText>
+          )}
+        </View>
+      </View>
 
-      {voucherOptions[0]?.type === "topup" && (
-        <>
-          <Text className="text-white text-lg font-medium mt-4 mb-2">
+      {/* Game ID Input */}
+      {amountOptions.length > 0 && amountOptions[0]?.type === "topup" && (
+        <View>
+          <BodyText className="text-text text-lg font-medium mb-2">
             Game ID
-          </Text>
+          </BodyText>
           <TextInput
-            className="bg-zinc-800 text-white p-3 rounded-lg mb-4"
+            className="bg-secondary border text-text border-border py-4 px-3 rounded-lg"
             placeholder="Enter your Game ID"
-            placeholderTextColor="#aaa"
+            placeholderTextColor={colors.text + 50}
             value={target}
             onChangeText={setTarget}
           />
-        </>
+        </View>
       )}
 
-      <Text className="text-white text-lg font-medium mb-4">
-        Quick Topup Options
-      </Text>
+      {/* Quick Topup Title */}
+      <BodyText className="text-text text-base font-medium">
+        Quick Topup Options:
+      </BodyText>
 
+      {/* Content */}
       {loading ? (
         <View className="items-center py-6">
           <ActivityIndicator color="#ffffff" size="large" />
-          <Text className="text-zinc-400 mt-3">{status}</Text>
+          <Text className="text-text mt-3">{status}</Text>
         </View>
-      ) : status.includes("Failed") ? (
-        <View className="items-center py-8 bg-zinc-900 rounded-lg">
-          <Text className="text-red-400 text-center">{status}</Text>
-          <TouchableOpacity
-            className="mt-4 bg-zinc-700 px-6 py-2 rounded-lg"
-            onPress={fetchProducts}>
-            <Text className="text-white">Retry</Text>
-          </TouchableOpacity>
+      ) : error?.includes("Failed") ? (
+        <View className="items-center py-8 bg-backgroundSecondary border border-border rounded-lg">
+          <FailedMsg error={error} onPress={fetchProducts} />
         </View>
-      ) : voucherOptions.length === 0 ? (
-        <View className="items-center py-8 bg-zinc-900 rounded-lg">
-          <Text className="text-zinc-400 text-center">
+      ) : amountOptions.length === 0 ? (
+        <View className="items-center py-8 border border-border bg-backgroundSecondary rounded-lg">
+          <Text className="text-red-500 text-center">
             No vouchers available for this game.
           </Text>
         </View>
       ) : (
-        <View className="flex-row flex-wrap justify-between">
-          {voucherOptions.map((option) => (
+        <View className="flex-row flex-wrap justify-between gap-y-4 mt-2">
+          {amountOptions.map((option) => (
             <TouchableOpacity
               key={option.value}
-              className="w-[48%] bg-zinc-900 rounded-lg p-4 mb-3"
+              className="w-[48%] bg-neutral-100 border border-border rounded-xl p-4"
               onPress={() => handleQuickOrder(option)}>
-              <View className="w-10 h-10 bg-white/10 rounded-full items-center justify-center mb-3">
-                <View className="w-5 h-5 bg-white rounded-full" />
+              <View className="w-10 h-10 bg-primary/10 rounded-full items-center justify-center mb-3">
+                <View className="w-5 h-5 bg-primary rounded-full" />
               </View>
-              <Text className="text-white text-lg font-bold">
+              <BodyText className="text-text text-lg font-bold">
                 {option.value.toLocaleString()} {option.currency}
-              </Text>
-              <Text className="text-zinc-400">
+              </BodyText>
+              <BodyText className="text-zinc-700">
                 Rp{option.price.toLocaleString()}
-              </Text>
-
+              </BodyText>
               {option.type === "voucher" && (
                 <Text className="text-emerald-400 text-xs mt-1">
                   Stock: {option.stock}

@@ -5,6 +5,7 @@ import {
   TextInputProps,
 } from "react-native";
 import React, { Dispatch, SetStateAction } from "react";
+import BodyText from "../extras/BodyText";
 
 interface AuthProps {
   value: string;
@@ -13,7 +14,7 @@ interface AuthProps {
   name: string;
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize: TextInputProps["autoCapitalize"];
-  secureTextEntry?: boolean
+  secureTextEntry?: boolean;
 }
 
 const AuthField = ({
@@ -23,18 +24,21 @@ const AuthField = ({
   setValue,
   keyboardType,
   autoCapitalize,
+  secureTextEntry,
 }: AuthProps) => {
   return (
     <>
-      <Text className="text-white mb-2">{name}</Text>
+      <BodyText className="text-text mb-2">{name}</BodyText>
       <TextInput
         value={value}
-        className="bg-zinc-800 text-white px-4 py-3 rounded-lg mb-4"
+        className="bg-backgroundSecondary text-neutral-500 px-4 py-3 mb-4 border border-border shadow-sm"
         placeholder={placeholder}
-        placeholderTextColor="#a1a1aa"
+        placeholderTextColor="#747574"
         keyboardType={keyboardType}
         onChangeText={setValue}
         autoCapitalize={autoCapitalize}
+        secureTextEntry={secureTextEntry}
+        style={{ fontFamily: "Nunito Regular" }}
       />
     </>
   );

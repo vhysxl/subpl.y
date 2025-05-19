@@ -4,19 +4,24 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
-import React from "react";
-import { Link, router, useLocalSearchParams } from "expo-router";
-import { useAuth } from "@/contexts/AuthContext";
+import React, { useCallback, useState } from "react";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import HeadingText from "./components/extras/HeadingText";
+import BodyText from "./components/extras/BodyText";
 
-const quickOrderModal = () => {
+const OrderModal = () => {
+  const [status, setStatus] = useState<string>("");
   const params = useLocalSearchParams();
-  const { gameId, target, value, type, gameName, price, quantity } = params;
-  const { user } = useAuth();
+  const { gameId, target, value, type, gameName, price, quantity, currency } =
+    params;
+  const { user } = useAuthStore();
   const router = useRouter();
 
+  //initializator
   const properties = [
     { label: "Game ID", key: "gameId" },
     { label: "Target", key: "target" },
@@ -27,7 +32,17 @@ const quickOrderModal = () => {
     { label: "Quantity", key: "quantity" },
   ];
 
-  const handleQuickOrder = async () => {
+  //cleanup logic
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setStatus("");
+      };
+    }, []),
+  );
+
+  //order handler
+  const handleOrder = async () => {
     console.log(user);
 
     const userId = user?.userId;
@@ -58,14 +73,12 @@ const quickOrderModal = () => {
         },
       );
 
-      console.log("value", typeof value, "quantity", typeof quantity);
-
       const result = await response.json();
 
       console.log(result);
 
       if (!result.data.payment.redirect_url) {
-        console.error("failed to create payment intent");
+        setStatus(status);
         return;
       }
 
@@ -75,68 +88,58 @@ const quickOrderModal = () => {
       });
     } catch (error) {
       console.error(error);
+      setStatus("Failed to create order");
+      return;
     }
   };
 
   return (
-    <View className="flex-1 bg-zinc-950 px-6 py-10 justify-between">
+    <View className="flex-1 bg-background px-6 py-10 justify-between">
       <View className="items-center mb-8">
-        <View className="bg-emerald-500/20 p-3 rounded-full mb-4">
+        <View className="bg-primary/20 p-3 rounded-full mb-4">
           <Ionicons name="cart-outline" size={32} color="#10b981" />
         </View>
-        <Text className="text-2xl font-bold text-white text-center">
-          Quick Order Details
-        </Text>
-        <Text className="text-zinc-400 text-center mt-1">
+        <HeadingText className="text-2xl text-text text-center">
+          Order Details
+        </HeadingText>
+        <BodyText className="text-zinc-400 text-center mt-1">
           Please review your order details
-        </Text>
+        </BodyText>
       </View>
 
-      <View className="bg-zinc-900 overflow-hidden mb-6">
-        <View className="bg-zinc-800 py-3 px-4 border-l-4 border-emerald-500">
-          <Text className="text-white font-semibold text-lg">{gameName}</Text>
+      <View className="bg-backgroundSecondary rounded-lg border border-border overflow-hidden mb-6">
+        <View className="bg-backgroundSecondary px-4 border-l-4 border-primary">
+          <Text className="text-text font-semibold text-lg">{gameName}</Text>
         </View>
 
         <View className="p-5 gap-6">
           {properties.map(({ label, key }) => {
-            //conditional rendering
-            const value = params[key];
+            const val = params[key];
             if (
-              value !== null &&
-              value !== "" &&
-              value !== undefined &&
+              val !== null &&
+              val !== "" &&
+              val !== undefined &&
               key !== "gameId"
             ) {
               return (
                 <View className="flex-row items-center" key={key}>
-                  <Text className="text-zinc-300 ml-3 font-semibold">
+                  <Text className="text-text/70 ml-3 font-semibold">
                     {label}
                   </Text>
-                  <Text className="text-white font-medium ml-auto">
-                    {value}
-                  </Text>
+                  <BodyText className="text-green-800 font-medium ml-auto">
+                    {key === "value" && currency ? `${value} ${currency}` : val}
+                  </BodyText>
                 </View>
               );
             }
             return null;
           })}
 
-          <View className="flex-row items-center">
-            <Text className="text-zinc-300 ml-3 font-semibold">
-              Voucher Value
-            </Text>
-            <Text className="text-white font-medium ml-auto">
-              {value?.toLocaleString()}
-            </Text>
-          </View>
-
           <View className="h-[1px] bg-zinc-700" />
 
           <View className="flex-row items-center">
-            <Text className="text-zinc-300 ml-3 font-semibold">
-              Total Price
-            </Text>
-            <Text className="text-white font-bold ml-auto">
+            <Text className="text-text ml-3 font-semibold">Total Price</Text>
+            <Text className="text-text font-bold ml-auto">
               Rp {price?.toLocaleString()}
             </Text>
           </View>
@@ -145,8 +148,8 @@ const quickOrderModal = () => {
 
       <View className="space-y-3 mt-auto">
         <TouchableOpacity
-          className="bg-emerald-500 py-4 rounded-xl active:opacity-80"
-          onPress={handleQuickOrder}>
+          className="bg-primary border py-4 rounded-xl active:opacity-80"
+          onPress={handleOrder}>
           <Text className="text-white text-center font-bold text-base">
             Confirm & Pay Rp{price?.toLocaleString()}
           </Text>
@@ -154,12 +157,14 @@ const quickOrderModal = () => {
 
         <TouchableWithoutFeedback
           onPress={() => router.back()}
-          className="py-3 rounded-xl active:opacity-80">
-          <Text className="text-zinc-400 text-center font-medium">Cancel</Text>
+          className="py-3 rounded-xl active:opacity-80 mt-4">
+          <Text className="text-zinc-400 text-center font-medium mt-4 pt-4">
+            Cancel
+          </Text>
         </TouchableWithoutFeedback>
       </View>
     </View>
   );
 };
 
-export default quickOrderModal;
+export default OrderModal;
