@@ -32,6 +32,7 @@ export default function RootLayout() {
     fetchProducts();
   }, []);
 
+
   // Render null if fonts aren't loaded and there's no error
   if (!fontsLoaded && !fontError) return null;
 

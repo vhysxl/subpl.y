@@ -20,13 +20,28 @@ export interface Products {
   currency: string;
 }
 
+export interface Orders {
+  orderId: string;
+  target?: string;
+  status: "pending" | "completed" | "cancelled" | "processed";
+  createdAt: string;
+  priceTotal: number;
+  value: number;
+  type: string;
+  gameName: string;
+  quantity: number;
+  redirectLink?: string;
+  code?: string;
+}
+
 export interface GameGroup {
   gameId: string;
   gameName: string;
-  isPopular: boolean; // balikin ke wajib
-  products: Products[]; // balikin ke wajib
+  isPopular: boolean;
+  products: Products[];
 }
 
+// store zustand
 export interface ProductStore {
   products: GameGroup[];
   loading: boolean;
@@ -40,6 +55,13 @@ export interface AuthStore {
   logout: () => Promise<void>;
   loadUser: () => Promise<void>;
   authLoading: boolean;
+}
+
+export interface OrderStore {
+  orders: Orders[];
+  loading: boolean;
+  error: string | null;
+  fetchOrders: (status?: string) => Promise<void>;
 }
 
 export interface GameCarouselProps {

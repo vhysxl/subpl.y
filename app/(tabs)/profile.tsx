@@ -52,24 +52,32 @@ const Profile = () => {
         Order Summary
       </Text>
       <View className="flex-row justify-between bg-backgroundSecondary rounded-2xl overflow-hidden">
-        <Link href={"/(orders)/ordersPending"} asChild>
-          <TouchableOpacity className="py-6 items-center flex-1">
-            <Ionicons name="hourglass-outline" size={28} color="#ffc107" />
-            <View className="mt-2 h-10 justify-center">
-              <Text className="text-text font-semibold text-sm text-center">
-                Waiting for Payment
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </Link>
+        <TouchableOpacity
+          className="py-6 items-center flex-1"
+          onPress={() =>
+            router.push({
+              pathname: "/(orders)/Orders",
+              params: { status: "pending" },
+            })
+          }>
+          <Ionicons name="hourglass-outline" size={28} color="#ffc107" />
+          <View className="mt-2 h-10 justify-center">
+            <Text className="text-text font-semibold text-sm text-center">
+              Waiting for Payment
+            </Text>
+          </View>
+        </TouchableOpacity>
 
         <View className="w-[1px] bg-border" />
 
         <TouchableOpacity
           className=" py-6 items-center flex-1"
-          onPress={() => {
-            console.log("Processing pressed");
-          }}>
+          onPress={() =>
+            router.push({
+              pathname: "/(orders)/Orders",
+              params: { status: "pending" },
+            })
+          }>
           <Ionicons name="reload-circle-outline" size={28} color="#00bfff" />
           <View className="mt-2 h-10 justify-center">
             <Text className="text-text font-semibold text-sm text-center">
@@ -82,9 +90,12 @@ const Profile = () => {
 
         <TouchableOpacity
           className="py-6 items-center flex-1"
-          onPress={() => {
-            console.log("Completed pressed");
-          }}>
+          onPress={() =>
+            router.push({
+              pathname: "/(orders)/Orders",
+              params: { status: "completed" },
+            })
+          }>
           <Ionicons name="checkmark-outline" size={28} color="#32cd32" />
           <View className="mt-2 h-10 justify-center">
             <Text className="text-text font-semibold text-sm text-center">
