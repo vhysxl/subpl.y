@@ -30,7 +30,7 @@ const paymentScreen = () => {
         } else if (
           url === "https://simulator.sandbox.midtrans.com/v2/deeplink/payment"
         ) {
-          router.replace("/paymentSuccess");
+          router.replace("/");
         }
       }}
     />

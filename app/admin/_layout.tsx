@@ -1,10 +1,13 @@
-// app/(tabs)/_layout.tsx - User Layout
+// app/(admin)/_layout.tsx - Admin Layout
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 
-const TabsLayout = () => {
+const AdminLayout = () => {
+  const { isSuperAdmin } = useAuthStore();
+
   return (
     <Tabs
       screenOptions={{
@@ -24,13 +27,13 @@ const TabsLayout = () => {
         },
       }}>
       <Tabs.Screen
-        name="index"
+        name="log"
         options={{
-          title: "HOME",
+          title: "LOG",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "home" : "home-outline"}
+              name={focused ? "document-text" : "document-text-outline"}
               size={20}
               color={color}
             />
@@ -39,13 +42,13 @@ const TabsLayout = () => {
       />
 
       <Tabs.Screen
-        name="games"
+        name="orders"
         options={{
-          title: "GAMES",
+          title: "ORDERS",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "game-controller" : "game-controller-outline"}
+              name={focused ? "receipt" : "receipt-outline"}
               size={20}
               color={color}
             />
@@ -53,6 +56,37 @@ const TabsLayout = () => {
         }}
       />
 
+      <Tabs.Screen
+        name="products"
+        options={{
+          title: "PRODUCTS",
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "cube" : "cube-outline"}
+              size={20}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="users"
+        options={{
+          title: "USERS",
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? "people" : "people-outline"}
+              size={20}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* Profile/Settings untuk admin */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -71,4 +105,4 @@ const TabsLayout = () => {
   );
 };
 
-export default TabsLayout;
+export default AdminLayout;

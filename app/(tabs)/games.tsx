@@ -9,27 +9,34 @@ import { Grid, List } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import { renderGridItem, renderListItem } from "../components/games/GameList";
+import { GameGridItem, GameListItem } from "../components/games/GameList";
 import { useProductStore } from "@/lib/stores/useProductStores";
 import { GameGroup } from "@/type";
 import BodyText from "../components/extras/BodyText";
 import Header from "../components/Header";
 import FailedMsg from "../components/extras/FailedMsg";
 import { useLocalSearchParams } from "expo-router";
+import { useConfigStore } from "@/lib/stores/useConfigStore";
 
 export default function Games() {
   const [viewMode, setViewMode] = useState("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const { products, fetchProducts, loading, error } = useProductStore();
   const [games, setGames] = useState<GameGroup[]>([]);
   const params = useLocalSearchParams();
+  const { products, fetchProducts, loading, error } = useProductStore();
+  const { apiUrl } = useConfigStore();
   const { query } = params;
+
+  if (!apiUrl) throw new Error("Config belum dimuat");
 
   useEffect(() => {
     if (query) {
       setSearchQuery(String(query));
     }
   }, [query]);
+
+  // const stringified = JSON.stringify(products, null, 2);
+  // console.log(stringified);
 
   // Filter games berdasarkan pencarian
   useEffect(() => {
@@ -87,10 +94,16 @@ export default function Games() {
         ) : games.length > 0 ? (
           viewMode === "grid" ? (
             <View className="flex-row flex-wrap justify-between">
-              {games.map(renderGridItem)}
+              {games.map((game) => (
+                <GameGridItem key={game.gameId} game={game} />
+              ))}
             </View>
           ) : (
-            <View>{games.map(renderListItem)}</View>
+            <View>
+              {games.map((game) => (
+                <GameListItem key={game.gameId} game={game} />
+              ))}
+            </View>
           )
         ) : error ? (
           <View className="items-center py-8 bg-background">

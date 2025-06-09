@@ -20,6 +20,7 @@ export const useProductStore = create<ProductStore>((set) => ({
       }
 
       const cleanedData = groupProductsByGame(data);
+
       set({ products: cleanedData, loading: false });
     } catch (error) {
       set({ error: "Failed to fetch products", loading: false });

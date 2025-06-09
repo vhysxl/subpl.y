@@ -6,6 +6,7 @@ import { registerSchema } from "@/lib/validation/validation";
 import AuthField from "./components/auth/AuthField";
 import AuthButton from "./components/auth/AuthButton";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
+import { useConfigStore } from "@/lib/stores/useConfigStore";
 
 export default function RegisterPage() {
   const [name, setName] = useState<string>("");
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { user } = useAuthStore();
+  const { apiUrl } = useConfigStore();
   const router = useRouter();
 
   //register logic
@@ -58,20 +60,17 @@ export default function RegisterPage() {
       }
 
       //request register
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/auth/register`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-          }),
+      const response = await fetch(`${apiUrl}/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+        }),
+      });
 
       if (user) {
         //redirect kalau ada user authenticated

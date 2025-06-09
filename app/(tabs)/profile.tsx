@@ -75,7 +75,7 @@ const Profile = () => {
           onPress={() =>
             router.push({
               pathname: "/(orders)/Orders",
-              params: { status: "pending" },
+              params: { status: "processing" },
             })
           }>
           <Ionicons name="reload-circle-outline" size={28} color="#00bfff" />

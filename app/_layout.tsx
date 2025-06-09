@@ -1,9 +1,11 @@
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import "./global.css";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { useProductStore } from "@/lib/stores/useProductStores";
+import { fetchConfig } from "@/lib/fetcher/configFetch";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
 
 // Keep splash screen visible while resources are loading
 SplashScreen.preventAutoHideAsync();
@@ -14,6 +16,7 @@ SplashScreen.setOptions({
 
 export default function RootLayout() {
   const fetchProducts = useProductStore((state) => state.fetchProducts); // Global fetch
+  const { user, isAdmin } = useAuthStore();
 
   const [fontsLoaded, fontError] = useFonts({
     "Fredoka Regular": require("../assets/fonts/Fredoka-Regular.ttf"),
@@ -21,6 +24,7 @@ export default function RootLayout() {
     "Fredoka Bold": require("../assets/fonts/Fredoka-Bold.ttf"),
     "Nunito Regular": require("../assets/fonts/Nunito-Regular.ttf"),
   });
+  const router = useRouter();
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -29,9 +33,12 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   useEffect(() => {
-    fetchProducts();
+    fetchConfig(); // ambil config saat app mulai
   }, []);
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   // Render null if fonts aren't loaded and there's no error
   if (!fontsLoaded && !fontError) return null;
@@ -50,6 +57,7 @@ export default function RootLayout() {
           animation: "slide_from_bottom",
         }}
       />
+      <Stack.Screen name="admin" />
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="login" />
       <Stack.Screen name="register" />

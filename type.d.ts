@@ -7,9 +7,11 @@ export interface User {
   createdAt?: Date;
   iat?: number;
   exp?: number;
+  roles: string[];
 }
 
 export interface Products {
+  productId: string;
   type: string;
   value: number;
   price: number;
@@ -18,6 +20,7 @@ export interface Products {
   isPopular: boolean;
   stock?: number;
   currency: string;
+  imageUrl: string;
 }
 
 export interface Orders {
@@ -38,6 +41,8 @@ export interface GameGroup {
   gameId: string;
   gameName: string;
   isPopular: boolean;
+  imageUrl: string;
+  currency: string;
   products: Products[];
 }
 

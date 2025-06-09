@@ -28,7 +28,10 @@ const GameCarousel = ({ title, icon, data }: GameCarouselProps) => {
           <TouchableOpacity key={game.gameId} className="mr-4">
             <View
               className={`w-[120px] h-[160px] rounded-lg overflow-hidden border border-black`}>
-              <Image className="w-full h-full" />
+              <Image
+                source={{ uri: game.imageUrl }}
+                className="w-full h-full"
+              />
               <View className="absolute bottom-0 left-0 right-0 bg-black/50 p-2">
                 <BodyText className="text-background text-sm font-medium">
                   {game.gameName}

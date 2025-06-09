@@ -12,6 +12,7 @@ import { useRouter } from "expo-router";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import HeadingText from "./components/extras/HeadingText";
 import BodyText from "./components/extras/BodyText";
+import { useConfigStore } from "@/lib/stores/useConfigStore";
 
 const OrderModal = () => {
   const [status, setStatus] = useState<string>("");
@@ -19,7 +20,10 @@ const OrderModal = () => {
   const { gameId, target, value, type, gameName, price, quantity, currency } =
     params;
   const { user } = useAuthStore();
+  const { apiUrl } = useConfigStore();
   const router = useRouter();
+
+  const totalPrice = Number(price) * Number(quantity);
 
   //initializator
   const properties = [
@@ -44,34 +48,24 @@ const OrderModal = () => {
   //order handler
   const handleOrder = async () => {
     console.log(user);
-
-    const userId = user?.userId;
-    const name = user?.name;
-    const email = user?.email;
     const token = await AsyncStorage.getItem("token");
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/orders/order`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            userId,
-            email,
-            gameId,
-            target,
-            value: Number(value),
-            type,
-            gameName,
-            customerName: name,
-            quantity: Number(quantity),
-          }),
+      const response = await fetch(`${apiUrl}/orders/order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify({
+          gameId,
+          target,
+          value: Number(value),
+          type,
+          gameName,
+          quantity: Number(quantity),
+        }),
+      });
 
       const result = await response.json();
 
@@ -140,7 +134,7 @@ const OrderModal = () => {
           <View className="flex-row items-center">
             <Text className="text-text ml-3 font-semibold">Total Price</Text>
             <Text className="text-text font-bold ml-auto">
-              Rp {price?.toLocaleString()}
+              Rp {totalPrice.toLocaleString()}
             </Text>
           </View>
         </View>
@@ -151,7 +145,7 @@ const OrderModal = () => {
           className="bg-primary border py-4 rounded-xl active:opacity-80"
           onPress={handleOrder}>
           <Text className="text-white text-center font-bold text-base">
-            Confirm & Pay Rp{price?.toLocaleString()}
+            Confirm & Pay Rp{totalPrice.toLocaleString()}
           </Text>
         </TouchableOpacity>
 

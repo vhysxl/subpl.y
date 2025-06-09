@@ -9,9 +9,12 @@ import AuthButton from "./components/auth/AuthButton";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import BodyText from "./components/extras/BodyText";
 import HeadingText from "./components/extras/HeadingText";
+import { useConfigStore } from "@/lib/stores/useConfigStore";
+import { useBackHandler } from "@/lib/hooks/useBackHandler";
 
 const Login = () => {
-  const { login, authLoading, user } = useAuthStore(); //zustand
+  const { login } = useAuthStore(); //zustand
+  const { apiUrl } = useConfigStore(); //zustand
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -19,29 +22,13 @@ const Login = () => {
   const router = useRouter();
 
   //back handler
-  useEffect(() => {
-    //back to home handler
-    const backAction = () => {
-      router.replace("/");
-      return true;
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction,
-    );
-
-    return () => backHandler.remove();
-  }, []);
+  useBackHandler("/");
 
   //cleanup logic
   useFocusEffect(
-  
     useCallback(() => {
-      
-
       return () => {
-        setError(""); 
+        setError("");
       };
     }, []),
   );
@@ -79,16 +66,13 @@ const Login = () => {
       }
 
       //request login
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+      const response = await fetch(`${apiUrl}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({ email, password }),
+      });
 
       //parse result
       const result = await response.json();

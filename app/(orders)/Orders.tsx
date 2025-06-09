@@ -192,9 +192,15 @@ const OrdersPage = () => {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {orders.map((item) => (
-              <RenderItem key={item.orderId} {...item} />
-            ))}
+            {[...orders] 
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime(),
+              ) // sort by date descending
+              .map((item) => (
+                <RenderItem key={item.orderId} {...item} />
+              ))}
           </ScrollView>
         </View>
       )}

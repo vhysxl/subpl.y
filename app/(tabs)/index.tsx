@@ -6,6 +6,7 @@ import {
   ScrollView,
   BackHandler,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import { Zap, TrendingUp } from "lucide-react-native";
 import { colors } from "@/constants/colors";
@@ -14,7 +15,7 @@ import QuickTopup from "../components/home/QuickTopup";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import GameCarousel from "../components/home/GameCarousel";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
 import HeadingText from "../components/extras/HeadingText";
 import { fetchProducts } from "@/lib/fetcher/productFetch";
@@ -22,13 +23,34 @@ import { useProductStore } from "@/lib/stores/useProductStores";
 import BodyText from "../components/extras/BodyText";
 import { GameGroup } from "@/type";
 import FailedMsg from "../components/extras/FailedMsg";
+import { fetchConfig } from "@/lib/fetcher/configFetch";
 
 export default function Index() {
-  const { user } = useAuthStore();
+  const { user, isAdmin, isSuperAdmin } = useAuthStore();
   const router = useRouter();
   const { products, loading, error } = useProductStore(); //zustand
   const [popularGames, setPopularGames] = useState<GameGroup[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState<string>("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await fetchConfig(); // panggil ulang fetchConfig
+    } catch (error) {
+      console.error("Failed refresh config:", error);
+      return;
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  console.log(user, isAdmin, isSuperAdmin);
 
   // Back Handler
   useEffect(() => {
@@ -60,6 +82,13 @@ export default function Index() {
     });
   };
 
+  useEffect(() => {
+    if (!isMounted) return;
+    if (isAdmin || isSuperAdmin) {
+      router.replace("/admin/log");
+    }
+  }, [isAdmin, isSuperAdmin, isMounted]);
+
   return (
     <SafeAreaView
       className="flex-1"
@@ -67,7 +96,11 @@ export default function Index() {
       {/* Header */}
       <Header />
 
-      <ScrollView className="flex-1">
+      <ScrollView
+        className="flex-1"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }>
         {/* Welcome Message */}
         <View className="px-4 py-3">
           {user ? (
