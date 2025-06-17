@@ -20,7 +20,20 @@ export interface Products {
   isPopular: boolean;
   stock?: number;
   currency: string;
+  imageUrl?: string;
+}
+
+export interface Games {
+  gameId: string;
+  name: string;
+  isPopular: boolean;
+  currency: string;
   imageUrl: string;
+}
+
+export interface DetailedProducts extends Products {
+  code: string;
+  status: string;
 }
 
 export interface Orders {
@@ -41,7 +54,7 @@ export interface GameGroup {
   gameId: string;
   gameName: string;
   isPopular: boolean;
-  imageUrl: string;
+  imageUrl: string | undefined;
   currency: string;
   products: Products[];
 }
@@ -49,9 +62,12 @@ export interface GameGroup {
 // store zustand
 export interface ProductStore {
   products: GameGroup[];
+  adminProducts: DetailedProducts[];
   loading: boolean;
   error: string | null;
   fetchProducts: () => Promise<void>;
+  fetchAdminProducts: (force?: boolean) => Promise<void>;
+  hasFetchedAdminProducts?: boolean;
 }
 
 export interface AuthStore {
@@ -67,10 +83,4 @@ export interface OrderStore {
   loading: boolean;
   error: string | null;
   fetchOrders: (status?: string) => Promise<void>;
-}
-
-export interface GameCarouselProps {
-  title: string;
-  icon: ReactNode;
-  data: GameGroup[];
 }

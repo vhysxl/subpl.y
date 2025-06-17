@@ -25,3 +25,27 @@ export const loginSchema = z.object({
     .min(1, { message: "Invalid password" })
     .max(20, { message: "Password must be less than 20 characters" }),
 });
+
+export const productSchema = z.object({
+  code: z.string().min(1, "Code is required"),
+  value: z.coerce.number().positive("Value must be a positive number"),
+  price: z.coerce.number().positive("Price must be a positive number"),
+  gameId: z.string().min(1, "Game ID is required"),
+  type: z.enum(["topup", "voucher"]),
+  status: z.enum(["available", "used"]),
+});
+
+export const userSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  roles: z
+    .array(z.enum(["user", "admin", "superadmin"]))
+    .min(1, "At least one role must be selected"),
+});
+
+export const gameSchema = z.object({
+  name: z.string().min(1, "name is required"),
+  currency: z.string().min(1, "game need currency"),
+  imageUrl: z.string().min(1, "image url is required"),
+  isPopular: z.boolean(),
+});

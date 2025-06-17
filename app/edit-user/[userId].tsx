@@ -1,11 +1,5 @@
-import {
-  View,
-  TouchableOpacity,
-  TextInput,
-  ScrollView,
-  Alert,
-} from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { View, TouchableOpacity, ScrollView, Alert } from "react-native";
+import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { deleteUser, getUserById, updateUser } from "@/lib/fetcher/usersFetch";
 import { User } from "@/type";
@@ -15,25 +9,29 @@ import SystemMsg from "../components/extras/SystemMsg";
 import { formatDate } from "@/lib/common/formatDate";
 import AdminButton from "../components/admin/AdminButton";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
+import AdminBack from "../components/admin/AdminBack";
+import AdminEditFields from "../components/admin/AdminEditFields";
+import { userSchema } from "@/lib/validation/validation";
+import { validateWithZod } from "@/lib/common/validator";
+import { useAutoDismissMessage } from "@/lib/hooks/useDismissMessage";
 
 const EditUserPage = () => {
-  const { userId } = useLocalSearchParams<{ userId: string }>();
   const router = useRouter();
+  const { userId } = useLocalSearchParams<{ userId: string }>();
+  const { isSuperAdmin } = useAuthStore();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const { isSuperAdmin } = useAuthStore();
-
-  // Form states
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [selectedRoles, setSelectedRoles] = useState<
     ("admin" | "user" | "superadmin")[]
   >([]);
 
+  useAutoDismissMessage(validationError, setValidationError, 5000);
   const availableRoles = ["user", "admin", "superadmin"] as const;
 
   useEffect(() => {
@@ -43,19 +41,10 @@ const EditUserPage = () => {
   }, [isSuperAdmin]);
 
   useEffect(() => {
-    console.log(userId);
-
     if (userId) {
       fetchUser();
     }
   }, [userId]);
-
-  useEffect(() => {
-    if (validationError) {
-      const timer = setTimeout(() => setValidationError(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [validationError]);
 
   const fetchUser = async () => {
     try {
@@ -88,10 +77,13 @@ const EditUserPage = () => {
     setValidationError(null);
     setError(null);
 
-    if (selectedRoles.length === 0) {
-      setValidationError("At least one role must be selected");
-      return;
-    }
+    const isValid = validateWithZod(
+      userSchema,
+      { name, email, roles: selectedRoles },
+      setValidationError,
+    );
+
+    if (!isValid) return;
 
     try {
       setSaving(true);
@@ -108,6 +100,13 @@ const EditUserPage = () => {
       setSaving(false);
     }
   };
+
+  useEffect(() => {
+    if (successMsg) {
+      const timer = setTimeout(() => setSuccessMsg(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMsg]);
 
   const handleDelete = async () => {
     Alert.alert(
@@ -158,17 +157,7 @@ const EditUserPage = () => {
 
   return (
     <View className="flex-1 bg-background">
-      <View className="px-4 pt-12 pb-4 bg-white border-b border-gray-100">
-        <View className="flex-row items-center justify-between">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="bg-gray-100 p-2 rounded-lg">
-            <BodyText>← Back</BodyText>
-          </TouchableOpacity>
-          <HeadingText className="text-lg">Edit User</HeadingText>
-          <View className="w-16" />
-        </View>
-      </View>
+      <AdminBack heading="Edit User" />
 
       <ScrollView className="flex-1 px-4 py-6">
         <SystemMsg message={successMsg || ""} type="success" />
@@ -186,43 +175,23 @@ const EditUserPage = () => {
           </BodyText>
         </View>
 
-        {/* Edit Form */}
         <View className="bg-white p-4 rounded-xl mb-6 border border-gray-100">
           <HeadingText className="text-lg mb-4">Edit Information</HeadingText>
-
-          {/* Name Field */}
-          <View className="mb-4">
-            <BodyText className="text-gray-700 mb-2 font-medium">Name</BodyText>
-            <TextInput
-              value={name}
-              onChangeText={(text) => {
-                setName(text);
-                setValidationError(null);
-              }}
-              placeholder="Enter name"
-              className="border border-gray-200 rounded-lg px-3 py-3 text-gray-900"
-              placeholderTextColor="#9CA3AF"
-            />
-          </View>
-
-          <View className="mb-4">
-            <BodyText className="text-gray-700 mb-2 font-medium">
-              Email
-            </BodyText>
-            <TextInput
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                setValidationError(null);
-              }}
-              placeholder="Enter email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              className="border border-gray-200 rounded-lg px-3 py-3 text-gray-900"
-              placeholderTextColor="#9CA3AF"
-            />
-          </View>
-
+          <AdminEditFields
+            title="Name"
+            value={name}
+            onChangeText={setName}
+            placeholder="Enter name"
+          />
+          <AdminEditFields
+            title="Email"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Enter email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          {/* Roles */}
           <View className="mb-4">
             <BodyText className="text-gray-700 mb-3 font-medium">
               Roles
@@ -263,7 +232,7 @@ const EditUserPage = () => {
           </View>
         </View>
 
-        {/* Action Buttons */}
+        {/* buttons */}
         <View className="flex-row space-x-3 mb-6 gap-2">
           <AdminButton
             title="Cancel"

@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { Zap, TrendingUp } from "lucide-react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
 import Header from "../components/Header";
 import QuickTopup from "../components/home/QuickTopup";
@@ -85,7 +85,7 @@ export default function Index() {
   useEffect(() => {
     if (!isMounted) return;
     if (isAdmin || isSuperAdmin) {
-      router.replace("/admin/log");
+      router.replace("/admin/home");
     }
   }, [isAdmin, isSuperAdmin, isMounted]);
 
@@ -173,7 +173,13 @@ export default function Index() {
           ) : (
             <GameCarousel
               title="Popular Games"
-              icon={<TrendingUp size={18} color={colors.accent} />}
+              icon={
+                <Ionicons
+                  name="trending-up-outline"
+                  size={18}
+                  color={colors.accent}
+                />
+              }
               data={popularGames}
             />
           )}
@@ -190,7 +196,11 @@ export default function Index() {
           <View className="bg-backgroundSecondary rounded-lg p-4 border border-border">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center">
-                <Zap color={colors.border} fill="yellow" size={22} />
+                <Ionicons
+                  name="flash-outline"
+                  size={22}
+                  color={colors.border}
+                />
                 <HeadingText className="text-text text-2xl pl-2">
                   Quick Topup
                 </HeadingText>

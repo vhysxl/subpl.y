@@ -1,6 +1,6 @@
 import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
-import { userFetch } from "@/lib/fetcher/usersFetch";
+import React, { useEffect, useState } from "react";
+import { searchUser, userFetch } from "@/lib/fetcher/usersFetch";
 import { User } from "@/type";
 import BodyText from "../components/extras/BodyText";
 import { useRouter } from "expo-router";
@@ -11,7 +11,7 @@ import AdminSearchBar from "../components/admin/AdminSearchBar";
 import FailedMsg from "../components/extras/FailedMsg";
 import AdminButton from "../components/admin/AdminButton";
 
-const UsersPage = ({ onSearch }: { onSearch: (query: string) => void }) => {
+const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +20,13 @@ const UsersPage = ({ onSearch }: { onSearch: (query: string) => void }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { isSuperAdmin } = useAuthStore();
   const router = useRouter();
+
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setCurrentPage(1);
+      fetchUsers(1);
+    }
+  }, [searchQuery]);
 
   const fetchUsers = async (page: number) => {
     try {
@@ -34,8 +41,8 @@ const UsersPage = ({ onSearch }: { onSearch: (query: string) => void }) => {
         setUsers([]);
         setHasNextPage(false);
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: any) {
+      setError(error);
     } finally {
       setLoading(false);
     }
@@ -57,8 +64,25 @@ const UsersPage = ({ onSearch }: { onSearch: (query: string) => void }) => {
     }
   };
 
-  const handleSearch = () => {
-    onSearch(searchQuery.trim());
+  const handleSearch = async () => {
+    const trimmed = searchQuery.trim();
+
+    if (trimmed === "") {
+      setCurrentPage(1);
+      fetchUsers(1);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await searchUser(trimmed);
+      setUsers(data);
+      setHasNextPage(false);
+    } catch (error: any) {
+      setError(error.message || "Failed to search users");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEdit = (userId: string) => {

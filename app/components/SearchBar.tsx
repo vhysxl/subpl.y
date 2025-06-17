@@ -1,7 +1,7 @@
 import { View, TextInput } from "react-native";
 import React, { Dispatch, SetStateAction, useState } from "react";
-import { Search } from "lucide-react-native";
 import { colors } from "@/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 interface SearchProps {
   value: string;
@@ -12,7 +12,7 @@ interface SearchProps {
 const SearchBar = ({ value, setValue, onSubmit }: SearchProps) => {
   return (
     <View className="bg-background border border-border rounded-full flex-row items-center px-4 py-3">
-      <Search size={20} color={colors.primary} />
+      <Ionicons name="search-outline" size={20} color={colors.primary} />
       <TextInput
         className="pl-2 flex-1"
         placeholder="Search games..."

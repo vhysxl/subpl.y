@@ -1,48 +1,43 @@
 import { User } from "@/type";
+import { fetchConfig } from "./configFetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const userFetch = async (page: Number) => {
+export const userFetch = async (page: number): Promise<User[] | null> => {
   try {
     const token = await AsyncStorage.getItem("token");
-    const res = await fetch(`https://vhysxl.github.io/subpl.y/config.json`);
-    const config = await res.json();
+    const config = await fetchConfig();
+
     const response = await fetch(`${config.apiUrl}/users?page=${page}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
+
     const result = await response.json();
+    if (!result.data) return null;
 
-    if (!result.data) {
-      return null;
-    }
-
-    const usersData: User[] = result.data;
-    return usersData;
+    return result.data as User[];
   } catch (error) {
     console.error(error);
-    throw new Error(`Failed to fetch user, ${error}`);
+    throw new Error(`Failed to fetch users: ${error}`);
   }
 };
 
-//fetchOne
-export const getUserById = async (userId: string) => {
+export const getUserById = async (userId: string): Promise<User> => {
   try {
-    const token = await AsyncStorage.getItem("token");
-    const res = await fetch(`https://vhysxl.github.io/subpl.y/config.json`);
-    const config = await res.json();
+    const token = await await AsyncStorage.getItem("token");
+    const config = await fetchConfig();
+
     const response = await fetch(`${config.apiUrl}/users/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
     });
-    const result = await response.json();
 
-    if (!result.data) {
-      throw new Error("User not found");
-    }
+    const result = await response.json();
+    if (!result.data) throw new Error("User not found");
 
     return result.data as User;
   } catch (error) {
@@ -51,7 +46,6 @@ export const getUserById = async (userId: string) => {
   }
 };
 
-// Update user
 export const updateUser = async (
   userId: string,
   userData: {
@@ -59,11 +53,11 @@ export const updateUser = async (
     name?: string;
     roles?: ("admin" | "user" | "superadmin")[];
   },
-) => {
+): Promise<User> => {
   try {
     const token = await AsyncStorage.getItem("token");
-    const res = await fetch(`https://vhysxl.github.io/subpl.y/config.json`);
-    const config = await res.json();
+    const config = await fetchConfig();
+
     const response = await fetch(`${config.apiUrl}/users/${userId}`, {
       method: "PATCH",
       headers: {
@@ -74,10 +68,8 @@ export const updateUser = async (
     });
 
     const result = await response.json();
-
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error(result.message || "Failed to update user");
-    }
 
     return result.data as User;
   } catch (error) {
@@ -86,12 +78,10 @@ export const updateUser = async (
   }
 };
 
-//delete
-export const deleteUser = async (userId: string) => {
+export const deleteUser = async (userId: string): Promise<string> => {
   try {
     const token = await AsyncStorage.getItem("token");
-    const res = await fetch(`https://vhysxl.github.io/subpl.y/config.json`);
-    const config = await res.json();
+    const config = await fetchConfig();
 
     const response = await fetch(`${config.apiUrl}/users/${userId}`, {
       method: "DELETE",
@@ -102,14 +92,38 @@ export const deleteUser = async (userId: string) => {
     });
 
     const result = await response.json();
-
-    if (!response.ok) {
+    if (!response.ok)
       throw new Error(result.message || "Failed to delete user");
-    }
 
     return result.message || "User deleted successfully";
   } catch (error) {
     console.error(error);
     throw new Error(`Failed to delete user: ${error}`);
+  }
+};
+
+export const searchUser = async (name: string): Promise<User[]> => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const config = await fetchConfig();
+
+    const response = await fetch(`${config.apiUrl}/users/search?name=${name}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Search failed:", result.message || result);
+    }
+    if (!result.data) return [];
+
+    return result.data as User[];
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Failed to search user: ${error}`);
   }
 };

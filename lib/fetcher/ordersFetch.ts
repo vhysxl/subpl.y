@@ -1,13 +1,13 @@
 import { Orders } from "@/type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchConfig } from "./configFetch";
 
 export const fetchOrders = async (
   userId: string,
   status: string,
 ): Promise<Orders[]> => {
   try {
-    const res = await fetch("https://vhysxl.github.io/subpl.y/config.json");
-    const config = await res.json();
+    const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
     const response = await fetch(
       `${config.apiUrl}/orders?userId=${userId}&status=${status}`,
@@ -35,8 +35,7 @@ export const fetchOrders = async (
 
 export const fetchDetailsOrder = async (orderId: string): Promise<Orders> => {
   try {
-    const res = await fetch("https://vhysxl.github.io/subpl.y/config.json");
-    const config = await res.json();
+    const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
 
     const response = await fetch(`${config.apiUrl}/orders/${orderId}/details`, {
@@ -50,7 +49,7 @@ export const fetchDetailsOrder = async (orderId: string): Promise<Orders> => {
     }
 
     const result = await response.json();
-    return result.data; // atau sesuaikan berdasarkan struktur response backend kamu
+    return result.data;
   } catch (error) {
     console.error("fetchDetailsOrder error:", error);
     throw error;
@@ -59,8 +58,7 @@ export const fetchDetailsOrder = async (orderId: string): Promise<Orders> => {
 
 export const fetchAllOrders = async (page: number = 1): Promise<Orders[]> => {
   try {
-    const res = await fetch("https://vhysxl.github.io/subpl.y/config.json");
-    const config = await res.json();
+    const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
 
     const response = await fetch(
@@ -78,13 +76,41 @@ export const fetchAllOrders = async (page: number = 1): Promise<Orders[]> => {
 
     const result = await response.json();
 
-    console.log(result);
-
     if (!result.data) {
       return [];
     }
 
     return result.data;
+  } catch (error) {
+    console.error("fetchAllOrders error:", error);
+    throw error;
+  }
+};
+
+export const updateOrders = async (
+  status: string,
+  orderId: string,
+): Promise<Orders> => {
+  try {
+    const config = await fetchConfig();
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await fetch(`${config.apiUrl}/orders/${orderId}/update`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({status}),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch all orders (admin)");
+    }
+
+    const result = await response.json();
+
+    return result;
   } catch (error) {
     console.error("fetchAllOrders error:", error);
     throw error;

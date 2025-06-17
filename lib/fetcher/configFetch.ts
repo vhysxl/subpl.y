@@ -9,4 +9,5 @@ export const fetchConfig = async () => {
   });
   const config = await res.json();
   useConfigStore.getState().setApiUrl(config.apiUrl);
+  return config;
 };

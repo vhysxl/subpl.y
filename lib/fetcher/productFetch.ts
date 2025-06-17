@@ -1,15 +1,10 @@
-import { Products } from "@/type";
+import { DetailedProducts, Products } from "@/type";
+import { fetchConfig } from "./configFetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-// Base configuration fetcher
-const getConfig = async () => {
-  const res = await fetch("https://vhysxl.github.io/subpl.y/config.json");
-  return await res.json();
-};
 
 export const fetchProducts = async (): Promise<Products[] | null> => {
   try {
-    const config = await getConfig();
+    const config = await fetchConfig();
     const response = await fetch(`${config.apiUrl}/products`);
 
     if (!response.ok) {
@@ -29,11 +24,36 @@ export const fetchProducts = async (): Promise<Products[] | null> => {
   }
 };
 
+export const fetchAdminProducts = async (): Promise<
+  DetailedProducts[] | null
+> => {
+  try {
+    const config = await fetchConfig();
+    const token = await AsyncStorage.getItem("token");
+    const response = await fetch(`${config.apiUrl}/products/productsAdmin`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch products");
+    }
+
+    const result = await response.json();
+    return result.data.products;
+  } catch (error) {
+    console.error("fetchProducts error:", error);
+    throw error;
+  }
+};
+
 export const createProduct = async (
   productData: Partial<Products>,
 ): Promise<Products> => {
   try {
-    const config = await getConfig();
+    const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
     const response = await fetch(`${config.apiUrl}/products`, {
       method: "POST",
@@ -61,7 +81,7 @@ export const updateProduct = async (
   updateData: Partial<Products>,
 ): Promise<Products> => {
   try {
-    const config = await getConfig();
+    const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
     const response = await fetch(`${config.apiUrl}/products/${productId}`, {
       method: "PATCH",
@@ -88,7 +108,7 @@ export const deleteProduct = async (
   productId: string,
 ): Promise<{ message: string }> => {
   try {
-    const config = await getConfig();
+    const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
     const response = await fetch(`${config.apiUrl}/products/${productId}`, {
       method: "DELETE",
@@ -102,7 +122,7 @@ export const deleteProduct = async (
     }
 
     const result = await response.json();
-    return result;
+    return result.message;
   } catch (error) {
     console.error("deleteProduct error:", error);
     throw error;

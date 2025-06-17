@@ -83,7 +83,7 @@ const Login = () => {
         return;
       }
 
-      //login pake context
+      //login pake zustand
       await login(result.user, result.token);
 
       router.replace("/");

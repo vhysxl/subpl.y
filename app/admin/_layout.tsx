@@ -1,13 +1,9 @@
-// app/(admin)/_layout.tsx - Admin Layout
 import React from "react";
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
-import { useAuthStore } from "@/lib/stores/useAuthStore";
 
 const AdminLayout = () => {
-  const { isSuperAdmin } = useAuthStore();
-
   return (
     <Tabs
       screenOptions={{
@@ -27,13 +23,13 @@ const AdminLayout = () => {
         },
       }}>
       <Tabs.Screen
-        name="log"
+        name="home"
         options={{
-          title: "LOG",
+          title: "HOME",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "document-text" : "document-text-outline"}
+              name={focused ? "home" : "home-outline"}
               size={20}
               color={color}
             />
@@ -86,15 +82,14 @@ const AdminLayout = () => {
         }}
       />
 
-      {/* Profile/Settings untuk admin */}
       <Tabs.Screen
-        name="profile"
+        name="games"
         options={{
-          title: "PROFILE",
+          title: "GAMES",
           headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name={focused ? "person" : "person-outline"}
+              name={focused ? "game-controller" : "game-controller-outline"}
               size={20}
               color={color}
             />

@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Alert,
   Text,
-  BackHandler,
   Image,
   StatusBar,
 } from "react-native";

@@ -2,7 +2,7 @@ import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import React from "react";
 import BodyText from "../extras/BodyText";
 
-type MessageType = "normal" | "danger" | "secondary";
+type MessageType = "normal" | "danger" | "secondary" | "third";
 
 interface AdminButtonProps {
   onPress: () => void;
@@ -24,6 +24,10 @@ const typeStyles: Record<MessageType, { container: string; text: string }> = {
   },
   secondary: {
     container: "bg-gray-500 border border-gray-600",
+    text: "text-white font-medium",
+  },
+  third: {
+    container: "bg-secondary border border-gray-600",
     text: "text-white font-medium",
   },
 };

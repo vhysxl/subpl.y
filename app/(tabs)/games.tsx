@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { Grid, List } from "lucide-react-native";
 import { colors } from "@/constants/colors";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
@@ -17,6 +16,7 @@ import Header from "../components/Header";
 import FailedMsg from "../components/extras/FailedMsg";
 import { useLocalSearchParams } from "expo-router";
 import { useConfigStore } from "@/lib/stores/useConfigStore";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function Games() {
   const [viewMode, setViewMode] = useState("grid");
@@ -69,17 +69,17 @@ export default function Games() {
           <TouchableOpacity
             className="mr-3"
             onPress={() => setViewMode("grid")}>
-            <Grid
+            <Ionicons
+              name="grid-outline"
               size={22}
               color={viewMode === "grid" ? colors.primary : colors.text + "70"}
-              strokeWidth={viewMode === "grid" ? 2.5 : 1.5}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setViewMode("list")}>
-            <List
+            <Ionicons
+              name="list-outline"
               size={22}
               color={viewMode === "list" ? colors.primary : colors.text + "70"}
-              strokeWidth={viewMode === "list" ? 2.5 : 1.5}
             />
           </TouchableOpacity>
         </View>

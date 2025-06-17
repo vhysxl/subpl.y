@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import { Bell } from "lucide-react-native";
+Ionicons;
 import { colors } from "@/constants/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 const Header = () => {
   return (
@@ -13,7 +14,12 @@ const Header = () => {
       </Text>
       <View className="flex-row">
         <TouchableOpacity>
-          <Bell size={24} color={colors.secondary} className="pr-4" />
+          <Ionicons
+            name="notifications-outline"
+            size={24}
+            color={colors.secondary}
+            style={{ paddingRight: 16 }}
+          />
         </TouchableOpacity>
       </View>
     </View>
