@@ -12,7 +12,7 @@ import { useRouter } from "expo-router";
 import { getUniqueGames } from "@/lib/common/getUnique";
 import { deleteProduct } from "@/lib/fetcher/productFetch";
 
-//update: pakai memoisasi
+
 const ProductItem = React.memo(
   ({
     item,

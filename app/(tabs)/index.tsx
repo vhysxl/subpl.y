@@ -18,7 +18,6 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
 import HeadingText from "../components/extras/HeadingText";
-import { fetchProducts } from "@/lib/fetcher/productFetch";
 import { useProductStore } from "@/lib/stores/useProductStores";
 import BodyText from "../components/extras/BodyText";
 import { GameGroup } from "@/type";
@@ -28,7 +27,7 @@ import { fetchConfig } from "@/lib/fetcher/configFetch";
 export default function Index() {
   const { user, isAdmin, isSuperAdmin } = useAuthStore();
   const router = useRouter();
-  const { products, loading, error } = useProductStore(); //zustand
+  const { products, loading, error, fetchProducts } = useProductStore(); //zustand
   const [popularGames, setPopularGames] = useState<GameGroup[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState<string>("");
@@ -41,7 +40,8 @@ export default function Index() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await fetchConfig(); // panggil ulang fetchConfig
+      await fetchConfig();
+      await fetchProducts();
     } catch (error) {
       console.error("Failed refresh config:", error);
       return;
@@ -49,8 +49,6 @@ export default function Index() {
       setRefreshing(false);
     }
   }, []);
-
-  console.log(user, isAdmin, isSuperAdmin);
 
   // Back Handler
   useEffect(() => {

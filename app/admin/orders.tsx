@@ -69,6 +69,14 @@ const OrdersPage = () => {
         icon: "alert-circle-outline" as keyof typeof Ionicons.glyphMap,
         color: "#6B7280",
       },
+      paid: {
+        bg: "bg-green-100",
+        cardBg: "bg-green-50",
+        text: "text-green-800",
+        border: "border-green-300",
+        icon: "checkmark-circle-outline" as keyof typeof Ionicons.glyphMap,
+        color: "#059669",
+      },
     };
     return configs[status];
   };
@@ -269,6 +277,21 @@ const OrdersPage = () => {
                 <Text
                   className={`text-xs font-bold ${statusConfig.text} uppercase tracking-wide`}>
                   {item.status}
+                </Text>
+              </View>
+            </View>
+            <View
+              className={`px-3 py-2 rounded-full ${statusConfig.bg} ${statusConfig.border} border border-white/20`}>
+              <View className="flex-row items-center">
+                <Ionicons
+                  name={statusConfig.icon}
+                  size={16}
+                  color={statusConfig.color}
+                  style={{ marginRight: 4 }}
+                />
+                <Text
+                  className={`text-xs font-bold ${statusConfig.text} uppercase tracking-wide`}>
+                  {item.paymentStatus}
                 </Text>
               </View>
             </View>

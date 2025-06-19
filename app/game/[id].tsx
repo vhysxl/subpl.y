@@ -11,7 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useProductStore } from "@/lib/stores/useProductStores";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import BodyText from "../components/extras/BodyText";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useBackHandler } from "@/lib/hooks/useBackHandler";

@@ -1,9 +1,41 @@
-import React from "react";
-import { Tabs } from "expo-router";
+import React, { useEffect } from "react";
+import { Tabs, useFocusEffect, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { colors } from "@/constants/colors";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import { BackHandler } from "react-native";
 
 const AdminLayout = () => {
+  const { isAdmin, isSuperAdmin } = useAuthStore();
+  const router = useRouter();
+
+  //disable backhandler
+  useFocusEffect(
+    React.useCallback(() => {
+      if (isAdmin || isSuperAdmin) {
+        const onBackPress = () => {
+          return true;
+        };
+
+        const subscription = BackHandler.addEventListener(
+          "hardwareBackPress",
+          onBackPress,
+        );
+
+        return () => subscription?.remove();
+      }
+    }, [isAdmin, isSuperAdmin]),
+  );
+
+  useEffect(() => {
+    if (!isAdmin && !isSuperAdmin) {
+      router.replace("/");
+    }
+  }, [isAdmin, isSuperAdmin]);
+
+  if (!isAdmin && !isSuperAdmin) {
+    return null;
+  }
   return (
     <Tabs
       screenOptions={{

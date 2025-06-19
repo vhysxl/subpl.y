@@ -2,9 +2,7 @@ import { View, TouchableOpacity, ScrollView } from "react-native";
 import React, { useState, useEffect } from "react";
 import { Picker } from "@react-native-picker/picker";
 import Header from "@/app/components/admin/Header";
-import { useProductStore } from "@/lib/stores/useProductStores";
 import { useRouter } from "expo-router";
-import { getUniqueGames } from "@/lib/common/getUnique";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import BodyText from "@/app/components/extras/BodyText";
 import HeadingText from "@/app/components/extras/HeadingText";
@@ -15,6 +13,9 @@ import { createProduct } from "@/lib/fetcher/productFetch";
 import { productSchema } from "@/lib/validation/validation";
 import { validateWithZod } from "@/lib/common/validator";
 import { useAutoDismissMessage } from "@/lib/hooks/useDismissMessage";
+import { fetchGames } from "@/lib/fetcher/gamesFetch";
+import FailedMsg from "@/app/components/extras/FailedMsg";
+import { Games } from "@/type";
 
 enum ProductType {
   TOPUP = "topup",
@@ -22,13 +23,13 @@ enum ProductType {
 }
 
 const AddProducts = () => {
-  const { adminProducts } = useProductStore();
   const router = useRouter();
   const { isSuperAdmin, isAdmin } = useAuthStore();
   const [validationError, setValidationError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [uniqueGames, setUniqueGames] = useState<Games[]>([]);
 
   //form
   const [gameId, setGameId] = useState<string>("");
@@ -39,7 +40,19 @@ const AddProducts = () => {
 
   useAutoDismissMessage(validationError, setValidationError, 5000);
   const availableTypes = Object.values(ProductType);
-  const uniqueGames = getUniqueGames(adminProducts);
+
+  useEffect(() => {
+    const getGames = async () => {
+      try {
+        const games = await fetchGames();
+        setUniqueGames(games);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to fetch games");
+      }
+    };
+    getGames();
+  }, []);
 
   useEffect(() => {
     if (!isSuperAdmin && !isAdmin) {
@@ -63,15 +76,11 @@ const AddProducts = () => {
 
     const isValid = validateWithZod(
       productSchema,
-      {
-        code,
-        value,
-        price,
-        gameId,
-        type,
-      },
+      productData,
       setValidationError,
     );
+
+    console.log(isValid);
 
     if (!isValid) {
       return;
@@ -179,19 +188,26 @@ const AddProducts = () => {
           <View className="mb-4">
             <BodyText className="text-gray-700 mb-3 font-medium">Game</BodyText>
             <View className="bg-gray-50 rounded-lg border border-gray-200">
-              <Picker
-                style={{ color: "#1F2937" }}
-                selectedValue={gameId}
-                onValueChange={(value) => setGameId(value)}>
-                <Picker.Item label="Select a game" value="" />
-                {uniqueGames.map((game) => (
-                  <Picker.Item
-                    key={game.gameId}
-                    label={game.gameName}
-                    value={game.gameId}
-                  />
-                ))}
-              </Picker>
+              {uniqueGames ? (
+                <Picker
+                  style={{ color: "#1F2937" }}
+                  selectedValue={gameId}
+                  onValueChange={(value) => setGameId(value)}>
+                  <Picker.Item label="Select a game" value="" />
+                  {uniqueGames.map((game) => (
+                    <Picker.Item
+                      key={game.gameId}
+                      label={game.name}
+                      value={game.gameId}
+                    />
+                  ))}
+                </Picker>
+              ) : (
+                <FailedMsg
+                  onPress={() => fetchGames()}
+                  error="failed to load games"
+                />
+              )}
             </View>
           </View>
         </View>

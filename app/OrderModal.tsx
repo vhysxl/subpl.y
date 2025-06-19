@@ -22,6 +22,7 @@ const OrderModal = () => {
   const { user } = useAuthStore();
   const { apiUrl } = useConfigStore();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const totalPrice = Number(price) * Number(quantity);
 
@@ -47,7 +48,10 @@ const OrderModal = () => {
 
   //order handler
   const handleOrder = async () => {
-    console.log(user);
+    if (isLoading) return;
+
+    setIsLoading(true);
+
     const token = await AsyncStorage.getItem("token");
 
     try {
@@ -142,10 +146,17 @@ const OrderModal = () => {
 
       <View className="space-y-3 mt-auto">
         <TouchableOpacity
-          className="bg-primary border py-4 rounded-xl active:opacity-80"
-          onPress={handleOrder}>
+          className={`border py-4 rounded-xl ${
+            isLoading
+              ? "bg-primary/50 active:opacity-50"
+              : "bg-primary active:opacity-80"
+          }`}
+          onPress={handleOrder}
+          disabled={isLoading}>
           <Text className="text-white text-center font-bold text-base">
-            Confirm & Pay Rp{totalPrice.toLocaleString()}
+            {isLoading
+              ? "Processing..."
+              : `Confirm & Pay Rp${totalPrice.toLocaleString()}`}
           </Text>
         </TouchableOpacity>
 

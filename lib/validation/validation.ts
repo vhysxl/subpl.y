@@ -28,8 +28,18 @@ export const loginSchema = z.object({
 
 export const productSchema = z.object({
   code: z.string().min(1, "Code is required"),
-  value: z.coerce.number().positive("Value must be a positive number"),
-  price: z.coerce.number().positive("Price must be a positive number"),
+  value: z.coerce
+    .number({
+      required_error: "Value is required",
+      invalid_type_error: "Value must be a number",
+    })
+    .positive("Value must be a positive number"),
+  price: z.coerce
+    .number({
+      required_error: "Price is required",
+      invalid_type_error: "Price must be a number",
+    })
+    .positive("Price must be a positive number"),
   gameId: z.string().min(1, "Game ID is required"),
   type: z.enum(["topup", "voucher"]),
   status: z.enum(["available", "used"]),
@@ -39,13 +49,24 @@ export const userSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   roles: z
-    .array(z.enum(["user", "admin", "superadmin"]))
+    .array(
+      z.enum(["user", "admin", "superadmin"], {
+        required_error: "Role is required",
+        invalid_type_error: "Invalid role selected",
+      }),
+    )
     .min(1, "At least one role must be selected"),
 });
 
 export const gameSchema = z.object({
-  name: z.string().min(1, "name is required"),
-  currency: z.string().min(1, "game need currency"),
-  imageUrl: z.string().min(1, "image url is required"),
-  isPopular: z.boolean(),
+  name: z.string().min(1, "Game name is required"),
+  currency: z.string().min(1, "Game currency is required"),
+  imageUrl: z
+    .string()
+    .min(1, "Image URL is required")
+    .url("Invalid image URL format"),
+  isPopular: z.boolean({
+    required_error: "Popular status is required",
+    invalid_type_error: "Popular status must be true or false",
+  }),
 });

@@ -48,6 +48,7 @@ export interface Orders {
   quantity: number;
   redirectLink?: string;
   code?: string;
+  paymentStatus: string;
 }
 
 export interface GameGroup {
@@ -83,4 +84,34 @@ export interface OrderStore {
   loading: boolean;
   error: string | null;
   fetchOrders: (status?: string) => Promise<void>;
+}
+
+export interface DashboardStats {
+  dailyOrders: number;
+  dailyUsers: number;
+  dailyRevenue: number;
+  unprocessedOrders: number;
+}
+
+export interface AuditLog {
+  auditId: string;
+  adminId: string;
+  adminName: string;
+  activity: string;
+  createdAt: string;
+}
+
+export interface OrderDetail {
+  orderId: string;
+  userId: string;
+  target: string;
+  status: "pending" | "processing" | "completed";
+  createdAt: string;
+  priceTotal: number;
+  value: number;
+  type: "voucher" | "topup";
+  gameName: string;
+  quantity: number;
+  paymentLink?: string | null;
+  voucherCodes?: string[];
 }

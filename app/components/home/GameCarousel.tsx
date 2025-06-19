@@ -1,10 +1,19 @@
 import { View, TouchableOpacity, ScrollView, Image } from "react-native";
 import React from "react";
-import { GameCarouselProps } from "@/type";
+import { GameGroup } from "@/type";
 import SubHeadingText from "../extras/SubHeadingText";
 import BodyText from "../extras/BodyText";
+import { useRouter } from "expo-router";
+
+interface GameCarouselProps {
+  title: string;
+  data: GameGroup[];
+  icon: React.ReactNode;
+}
 
 const GameCarousel = ({ title, icon, data }: GameCarouselProps) => {
+  const router = useRouter();
+
   return (
     <View className="px-4 mb-6">
       {/* Header */}
@@ -15,17 +24,14 @@ const GameCarousel = ({ title, icon, data }: GameCarouselProps) => {
             {title}
           </SubHeadingText>
         </View>
-        <TouchableOpacity
-          className={`px-3 py-1 rounded-full bg-primary border border-text`}>
-          <BodyText className={`text-text text-xs font-medium`}>
-            View All
-          </BodyText>
-        </TouchableOpacity>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {data.map((game) => (
-          <TouchableOpacity key={game.gameId} className="mr-4">
+        {data.map((game: GameGroup) => (
+          <TouchableOpacity
+            key={game.gameId}
+            className="mr-4"
+            onPress={() => router.push(`/game/${game.gameId}`)}>
             <View
               className={`w-[120px] h-[160px] rounded-lg overflow-hidden border border-black`}>
               <Image

@@ -2,19 +2,39 @@ import React from "react";
 import { WebView } from "react-native-webview";
 import { StyleSheet } from "react-native";
 import Constants from "expo-constants";
-import { Redirect, useLocalSearchParams } from "expo-router";
-import { useRouter } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
+import { useProductStore } from "@/lib/stores/useProductStores";
 
-const paymentScreen = () => {
+const PaymentScreen = () => {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { fetchProducts } = useProductStore();
+
   const paymentUrl = Array.isArray(params.paymentUrl)
     ? params.paymentUrl[0]
     : params.paymentUrl;
 
   if (!paymentUrl) {
-    return <Redirect href={"/"} />;
+    return <Redirect href="/" />;
   }
+
+  const handleNavigationChange = async (navState: any) => {
+    const url = navState.url;
+
+    if (url.includes("success")) {
+      router.replace("/paymentSuccess");
+    } else if (
+      url === "https://simulator.sandbox.midtrans.com/v2/deeplink/payment"
+    ) {
+      try {
+        await fetchProducts();
+      } catch (error) {
+        console.error("Failed to refresh products:", error);
+      } finally {
+        router.replace("/");
+      }
+    }
+  };
 
   return (
     <WebView
@@ -23,16 +43,7 @@ const paymentScreen = () => {
       javaScriptEnabled
       domStorageEnabled
       startInLoadingState
-      onNavigationStateChange={(navstate) => {
-        const url = navstate.url;
-        if (url.includes("success")) {
-          router.replace("/paymentSuccess");
-        } else if (
-          url === "https://simulator.sandbox.midtrans.com/v2/deeplink/payment"
-        ) {
-          router.replace("/");
-        }
-      }}
+      onNavigationStateChange={handleNavigationChange}
     />
   );
 };
@@ -44,4 +55,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default paymentScreen;
+export default PaymentScreen;

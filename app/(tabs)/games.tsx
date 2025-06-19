@@ -50,21 +50,17 @@ export default function Games() {
     <SafeAreaView
       className="flex-1"
       style={{ backgroundColor: colors.background }}>
-      {/* Header */}
       <Header />
 
-      {/* Search Bar */}
       <View className="px-4 mb-4">
         <SearchBar value={searchQuery} setValue={setSearchQuery} />
       </View>
 
-      {/* Filter & Sort Bar */}
       <View className="px-4 py-3 flex-row justify-between border-t border-b bg-backgroundSecondary border-border items-center mb-2">
         <BodyText className="text-text">
           {games.length} {games.length === 1 ? "game" : "games"} found
         </BodyText>
 
-        {/* Toggle View Mode */}
         <View className="flex-row">
           <TouchableOpacity
             className="mr-3"
@@ -85,7 +81,6 @@ export default function Games() {
         </View>
       </View>
 
-      {/* Games List */}
       <ScrollView className="flex-1 px-4">
         {loading ? (
           <View className="flex-1 justify-center items-center py-20">

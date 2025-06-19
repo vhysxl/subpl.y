@@ -2,7 +2,7 @@ import { Games } from "@/type";
 import { fetchConfig } from "./configFetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export const fetchGames = async (): Promise<Games[] | null> => {
+export const fetchGames = async (): Promise<Games[]> => {
   try {
     const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");

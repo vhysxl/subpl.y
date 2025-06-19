@@ -101,7 +101,7 @@ export const updateOrders = async (
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({status}),
+      body: JSON.stringify({ status }),
     });
 
     if (!response.ok) {
@@ -111,6 +111,57 @@ export const updateOrders = async (
     const result = await response.json();
 
     return result;
+  } catch (error) {
+    console.error("fetchAllOrders error:", error);
+    throw error;
+  }
+};
+
+export const getOrderDetail = async (orderId: string) => {
+  try {
+    const config = await fetchConfig();
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await fetch(`${config.apiUrl}/orders/${orderId}/details`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch order detail");
+    }
+
+    const result = await response.json();
+
+    return result.data;
+  } catch (error) {
+    console.error("fetchAllOrders error:", error);
+    throw error;
+  }
+};
+
+export const cancelOrder = async (orderId: string) => {
+  try {
+    const config = await fetchConfig();
+    const token = await AsyncStorage.getItem("token");
+
+    const response = await fetch(`${config.apiUrl}/orders/${orderId}/cancel`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      method: "PATCH",
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch order detail");
+    }
+
+    const result = await response.json();
+
+    return result.data;
   } catch (error) {
     console.error("fetchAllOrders error:", error);
     throw error;
