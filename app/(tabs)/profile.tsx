@@ -28,88 +28,46 @@ const Profile = () => {
 
   return (
     <SafeAreaView className="flex-1 gap-y-6 bg-background px-6 py-8 justify-start">
-      {/* Avatar */}
       <View className="w-24 h-24 rounded-full bg-primary border justify-center items-center self-center mb-6">
         <Text className="text-4xl font-bold text-background">
           {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
         </Text>
       </View>
 
-      {/* Title */}
       <HeadingText className="text-3xl font-bold text-text text-center mb-8">
         {user?.name || "PROFILE"}
       </HeadingText>
 
-      {/* User Info */}
       <View className="space-y-2 border border-border/20 bg-secondary/20 py-4 px-2 rounded-lg">
         <UserDetails label={"Name"} data={user.name} />
         <UserDetails label={"Email"} data={user.email} />
         <UserDetails label={"Member Since"} createdAt={dateJoined} />
       </View>
 
-      {/* Status Summary */}
-      <Text className="text-secondary font-bold text-lg pl-2">
-        Order Summary
-      </Text>
-      <View className="flex-row justify-between bg-backgroundSecondary rounded-2xl overflow-hidden">
-        <TouchableOpacity
-          className="py-6 items-center flex-1"
-          onPress={() =>
-            router.push({
-              pathname: "/(orders)/Orders",
-              params: { status: "pending" },
-            })
-          }>
-          <Ionicons name="hourglass-outline" size={28} color="#ffc107" />
-          <View className="mt-2 h-10 justify-center">
-            <Text className="text-text font-semibold text-sm text-center">
-              Waiting for Payment
-            </Text>
-          </View>
-        </TouchableOpacity>
+      <Pressable
+        onPress={() => router.push("/edit-profile/EditProfile")}
+        className="py-3 rounded-xl items-center bg-primary">
+        <View className="flex-row gap-x-2 items-center">
+          <Ionicons name="create-outline" size={20} color="white" />
+          <Text className="text-background font-bold text-base">
+            Edit Profile
+          </Text>
+        </View>
+      </Pressable>
 
-        <View className="w-[1px] bg-border" />
+      <Pressable
+        onPress={() => router.push("/(orders)/Orders")}
+        className="py-3 rounded-xl items-center bg-secondary">
+        <View className="flex-row gap-x-2 items-center">
+          <Ionicons name="cube-outline" size={20} color="white" />
+          <Text className="text-background font-bold text-base">My Orders</Text>
+        </View>
+      </Pressable>
 
-        <TouchableOpacity
-          className=" py-6 items-center flex-1"
-          onPress={() =>
-            router.push({
-              pathname: "/(orders)/Orders",
-              params: { status: "processing" },
-            })
-          }>
-          <Ionicons name="reload-circle-outline" size={28} color="#00bfff" />
-          <View className="mt-2 h-10 justify-center">
-            <Text className="text-text font-semibold text-sm text-center">
-              Processing
-            </Text>
-          </View>
-        </TouchableOpacity>
-
-        <View className="w-[1px] bg-border" />
-
-        <TouchableOpacity
-          className="py-6 items-center flex-1"
-          onPress={() =>
-            router.push({
-              pathname: "/(orders)/Orders",
-              params: { status: "completed" },
-            })
-          }>
-          <Ionicons name="checkmark-outline" size={28} color="#32cd32" />
-          <View className="mt-2 h-10 justify-center">
-            <Text className="text-text font-semibold text-sm text-center">
-              Completed
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* Logout Button */}
       <Pressable
         onPress={() => {
           logout();
-          router.replace("/login");
+          router.replace("/auth/login");
         }}
         className="mt-auto py-3 rounded-xl items-center">
         <View className="flex-row gap-x-2 items-center">

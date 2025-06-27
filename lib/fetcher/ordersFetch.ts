@@ -2,19 +2,13 @@ import { Orders } from "@/type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchConfig } from "./configFetch";
 
-export const fetchOrders = async (
-  userId: string,
-  status: string,
-): Promise<Orders[]> => {
+export const fetchOrders = async (userId: string): Promise<Orders[]> => {
   try {
     const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
-    const response = await fetch(
-      `${config.apiUrl}/orders?userId=${userId}&status=${status}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    );
+    const response = await fetch(`${config.apiUrl}/orders?userId=${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch orders");

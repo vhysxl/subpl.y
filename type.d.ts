@@ -39,7 +39,7 @@ export interface DetailedProducts extends Products {
 export interface Orders {
   orderId: string;
   target?: string;
-  status: "pending" | "completed" | "cancelled" | "processed";
+  status: "pending" | "completed" | "cancelled" | "processed" | "failed";
   createdAt: string;
   priceTotal: number;
   value: number;
@@ -105,7 +105,7 @@ export interface OrderDetail {
   orderId: string;
   userId: string;
   target: string;
-  status: "pending" | "processing" | "completed";
+  status: "pending" | "processing" | "completed" | "failed" | "cancelled";
   createdAt: string;
   priceTotal: number;
   value: number;

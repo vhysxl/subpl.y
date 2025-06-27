@@ -10,7 +10,7 @@ import { useAuthStore } from "@/lib/stores/useAuthStore";
 // Keep splash screen visible while resources are loading
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({
-  duration: 400,
+  duration: 1000,
   fade: true,
 });
 
@@ -59,8 +59,6 @@ export default function RootLayout() {
       />
       <Stack.Screen name="admin" />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="login" />
-      <Stack.Screen name="register" />
       <Stack.Screen name="(orders)" />
     </Stack>
   );

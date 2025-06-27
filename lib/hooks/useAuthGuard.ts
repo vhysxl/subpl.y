@@ -9,11 +9,10 @@ export const useAuthGuard = () => {
   useFocusEffect(
     useCallback(() => {
       if (!user) {
-        router.push("/login");
+        router.push("/auth/login");
       }
     }, [user]), //redirect langsung malah crash jadi harus pake ini
   );
 
   return;
 };
-

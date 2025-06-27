@@ -34,7 +34,7 @@ export default function GameDetail() {
   useBackHandler("/(tabs)/games");
 
   const handleOrder = () => {
-    if (!user) return router.push("/login");
+    if (!user) return router.push("/auth/login");
     if (!selectedOption) return Alert.alert("Please select an option first");
 
     if (selectedOption.type === "topup" && !target.trim()) {
@@ -114,7 +114,6 @@ export default function GameDetail() {
       <ScrollView
         className="flex-1 bg-background"
         contentContainerStyle={{ paddingBottom: 80 }}>
-        {/* Game Hero */}
         <View className="px-4 mt-4 pb-4">
           <View
             className="rounded-xl overflow-hidden shadow-md"
@@ -143,9 +142,7 @@ export default function GameDetail() {
           <MaterialIcons name="arrow-back" size={22} color="#fff" />
         </TouchableOpacity>
 
-        {/* Form Inputs */}
         <View className="px-5 pt-4">
-          {/* Game ID & Quantity */}
           {options.some((opt) => opt.type === "topup") && (
             <View className="mb-6 bg-white p-5 rounded-2xl shadow-md border border-gray-200">
               <BodyText className="mb-3 text-base font-semibold text-text">
@@ -174,7 +171,6 @@ export default function GameDetail() {
             </View>
           )}
 
-          {/* Option Picker */}
           <View className="flex-row items-center justify-between mb-4">
             <BodyText className="text-lg font-bold text-text">
               Select Option
@@ -190,7 +186,6 @@ export default function GameDetail() {
             ))}
           </View>
 
-          {/* Quantity Input when not topup */}
           {!options.some((opt) => opt.type === "topup") && (
             <View className="mt-8 bg-white p-5 rounded-2xl shadow-md border-2 border-gray-200">
               <BodyText className="mb-3 text-base font-semibold text-text">
@@ -210,7 +205,6 @@ export default function GameDetail() {
         </View>
       </ScrollView>
 
-      {/* Order Button */}
       <View className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t-2 border-gray-200 shadow-lg">
         <TouchableOpacity
           onPress={handleOrder}

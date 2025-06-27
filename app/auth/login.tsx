@@ -1,14 +1,14 @@
-import { SafeAreaView, BackHandler, View } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import { SafeAreaView, View } from "react-native";
+import React, { useCallback, useState } from "react";
 import { Link, useFocusEffect } from "expo-router";
-import SystemMsg from "./components/extras/SystemMsg";
+import SystemMsg from "../components/extras/SystemMsg";
 import { useRouter } from "expo-router";
 import { loginSchema } from "@/lib/validation/validation";
-import AuthField from "./components/auth/AuthField";
-import AuthButton from "./components/auth/AuthButton";
+import AuthField from "../components/auth/AuthField";
+import AuthButton from "../components/auth/AuthButton";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
-import BodyText from "./components/extras/BodyText";
-import HeadingText from "./components/extras/HeadingText";
+import BodyText from "../components/extras/BodyText";
+import HeadingText from "../components/extras/HeadingText";
 import { useConfigStore } from "@/lib/stores/useConfigStore";
 import { useBackHandler } from "@/lib/hooks/useBackHandler";
 
@@ -77,7 +77,6 @@ const Login = () => {
       //parse result
       const result = await response.json();
 
-      //request gagal exception
       if (!response.ok) {
         setError(`Failed to login, ${result.message}.`);
         return;
@@ -130,7 +129,7 @@ const Login = () => {
 
       <BodyText className="text-text text-center">
         New to Subpl.y?{" "}
-        <Link href={"/register"} className="text-secondary underline">
+        <Link href={"/auth/register"} replace className="text-secondary underline">
           Register
         </Link>
       </BodyText>

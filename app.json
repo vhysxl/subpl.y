@@ -13,7 +13,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "monochromeImage": "./assets/icons/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.vhysxlchan.subply"
@@ -26,7 +27,19 @@
     "plugins": [
       "expo-router",
       "expo-image-picker",
-      "expo-splash-screen",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icons/splash-icon.png",
+          "resizeMode": "center",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "image": "./assets/icons/splash-icon.png",
+            "backgroundColor": "#000000"
+          },
+          "imageWidth": 400
+        }
+      ],
       "expo-font"
     ],
     "experiments": {

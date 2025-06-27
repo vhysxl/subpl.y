@@ -3,7 +3,7 @@ import React from "react";
 import { GameGroup } from "@/type";
 import SubHeadingText from "../extras/SubHeadingText";
 import BodyText from "../extras/BodyText";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 
 interface GameCarouselProps {
   title: string;
@@ -50,7 +50,9 @@ const GameCarousel = ({ title, icon, data }: GameCarouselProps) => {
         <TouchableOpacity className="mr-4">
           <View
             className={`w-[80px] h-[160px] rounded-lg border border-dashed border-border bg-primary justify-center items-center`}>
-            <BodyText className={`text-text font-medium`}>See All</BodyText>
+            <BodyText className={`text-text font-medium`}>
+              <Link href={"/(tabs)/games"}>See All</Link>
+            </BodyText>
             <BodyText className={`text-text`}>→</BodyText>
           </View>
         </TouchableOpacity>

@@ -1,10 +1,10 @@
 import { Link, Redirect, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { SafeAreaView, Text, View } from "react-native";
-import SystemMsg from "./components/extras/SystemMsg";
+import SystemMsg from "../components/extras/SystemMsg";
 import { registerSchema } from "@/lib/validation/validation";
-import AuthField from "./components/auth/AuthField";
-import AuthButton from "./components/auth/AuthButton";
+import AuthField from "../components/auth/AuthField";
+import AuthButton from "../components/auth/AuthButton";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useConfigStore } from "@/lib/stores/useConfigStore";
 
@@ -87,7 +87,7 @@ export default function RegisterPage() {
       }
 
       //redirect kalau gk kebegal
-      router.replace("/login");
+      router.replace("/auth/login");
     } catch (error) {
       console.error("Failed to register:", error);
       setError("An error occurred, please try again later. 😢");
@@ -160,7 +160,10 @@ export default function RegisterPage() {
         className="text-text text-center "
         style={{ fontFamily: "Nunito Regular" }}>
         Already Subpl.y member?{" "}
-        <Link href="/login" className="text-secondary underline">
+        <Link
+          href="/auth/login"
+          replace
+          className="text-secondary underline">
           Login
         </Link>
       </Text>

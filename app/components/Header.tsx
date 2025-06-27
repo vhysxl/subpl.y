@@ -13,14 +13,14 @@ const Header = () => {
         SUBPL.Y
       </Text>
       <View className="flex-row">
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <Ionicons
             name="notifications-outline"
             size={24}
             color={colors.secondary}
             style={{ paddingRight: 16 }}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

@@ -94,8 +94,8 @@ const EditUserPage = () => {
       });
 
       setSuccessMsg("User updated successfully!");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: any) {
+      setError(error.message);
     } finally {
       setSaving(false);
     }
@@ -164,7 +164,6 @@ const EditUserPage = () => {
         <SystemMsg message={error || ""} type="error" />
         <SystemMsg message={validationError || ""} type="error" />
 
-        {/* User Info */}
         <View className="bg-white p-4 rounded-xl mb-6 border border-gray-100">
           <BodyText className="text-gray-500 text-sm mb-2">User ID</BodyText>
           <BodyText className="font-medium mb-3">{user?.userId}</BodyText>
@@ -191,7 +190,7 @@ const EditUserPage = () => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          {/* Roles */}
+
           <View className="mb-4">
             <BodyText className="text-gray-700 mb-3 font-medium">
               Roles
@@ -232,7 +231,6 @@ const EditUserPage = () => {
           </View>
         </View>
 
-        {/* buttons */}
         <View className="flex-row space-x-3 mb-6 gap-2">
           <AdminButton
             title="Cancel"

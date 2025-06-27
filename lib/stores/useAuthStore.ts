@@ -1,6 +1,7 @@
 import { User } from "@/type";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { fetchConfig } from "../fetcher/configFetch";
 
 interface AuthStore {
   user: User | null;
@@ -21,25 +22,20 @@ export const useAuthStore = create<AuthStore>((set) => ({
   loadUser: async () => {
     try {
       const token = await AsyncStorage.getItem("token");
-
+      const config = await fetchConfig();
 
       if (token) {
-        const res = await fetch(
-          `https://81d8-2001-448a-2011-10f5-ad44-6bdf-ea57-a32d.ngrok-free.app/auth/me`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
+        const res = await fetch(`${config.apiUrl}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         console.log(res);
 
         if (res.ok) {
           const data = await res.json();
-
-
 
           const userData: User = {
             userId: data.sub, // API return 'sub', tapi User type expect 'userId'

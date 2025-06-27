@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import RenderItem from "../components/orders/RenderItem";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useAuthGuard } from "@/lib/hooks/useAuthGuard";
@@ -16,8 +16,6 @@ import { fetchOrders } from "@/lib/fetcher/ordersFetch";
 import { Orders } from "@/type";
 import { Ionicons } from "@expo/vector-icons";
 import HeadingText from "../components/extras/HeadingText";
-import { STATUS_CONFIG } from "@/constants/ordersConfig";
-import Indicator from "../components/orders/Indicator";
 
 const OrdersPage = () => {
   const { user } = useAuthStore();
@@ -25,16 +23,8 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState<Orders[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { status } = useLocalSearchParams();
 
-  const validStatuses = ["pending", "processing", "completed"];
-  const orderStatus = validStatuses.includes(status as string)
-    ? (status as "pending" | "processing" | "completed")
-    : "pending";
-
-  const currentConfig = STATUS_CONFIG[orderStatus];
-
-  const fetchOrdersByStatus = async () => {
+  const fetchAllOrders = async () => {
     try {
       setLoading(true);
       setError("");
@@ -46,18 +36,11 @@ const OrdersPage = () => {
         return;
       }
 
-      let ordersData;
-
-      if (orderStatus === "processing") {
-        ordersData = await fetchOrders(userId, "processed");
-      } else {
-        ordersData = await fetchOrders(userId, orderStatus);
-      }
-
+      const ordersData = await fetchOrders(userId);
       setOrders(ordersData);
     } catch (error) {
-      console.error(`Error fetching ${orderStatus} orders:`, error);
-      setError(`Failed to load your ${orderStatus} orders. Please try again.`);
+      console.error("Error fetching orders:", error);
+      setError("Failed to load your orders. Please try again.");
       setOrders([]);
     } finally {
       setLoading(false);
@@ -71,8 +54,8 @@ const OrdersPage = () => {
   }
 
   useEffect(() => {
-    fetchOrdersByStatus();
-  }, [orderStatus]);
+    fetchAllOrders();
+  }, []);
 
   useEffect(() => {
     //back to home handler
@@ -89,18 +72,8 @@ const OrdersPage = () => {
     return () => backHandler.remove();
   }, []);
 
-  const navigateToStatus = (
-    newStatus: "pending" | "processing" | "completed",
-  ) => {
-    router.push({
-      pathname: "/(orders)/Orders",
-      params: { status: newStatus },
-    });
-  };
-
   return (
     <SafeAreaView className="flex-1 bg-background px-6 pt-8">
-      {/* Header */}
       <View className="flex-row items-center mb-6">
         <TouchableOpacity
           onPress={() => router.replace("/(tabs)/profile")}
@@ -108,41 +81,8 @@ const OrdersPage = () => {
           <Ionicons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <HeadingText className="text-2xl font-bold text-text">
-          {currentConfig.title}
+          My Orders
         </HeadingText>
-      </View>
-
-      <View className="flex-row justify-between items-center mb-6 bg-secondary/20 rounded-xl p-4 border border-border/20">
-        <Indicator
-          label="Pending"
-          icon="hourglass-outline"
-          value="pending"
-          currentStatus={orderStatus}
-          activeColor="#ffc107"
-          onPress={() => navigateToStatus("pending")}
-        />
-
-        <View className="flex-1 h-[1px] bg-border/30 mx-2" />
-
-        <Indicator
-          label="Processing"
-          icon="reload-circle-outline"
-          value="processing"
-          currentStatus={orderStatus}
-          activeColor="#00bfff"
-          onPress={() => navigateToStatus("processing")}
-        />
-
-        <View className="flex-1 h-[1px] bg-border/30 mx-2" />
-
-        <Indicator
-          label="Completed"
-          icon="checkmark-outline"
-          value="completed"
-          currentStatus={orderStatus}
-          activeColor="#32cd32"
-          onPress={() => navigateToStatus("completed")}
-        />
       </View>
 
       {loading ? (
@@ -157,20 +97,16 @@ const OrdersPage = () => {
             {error}
           </Text>
           <TouchableOpacity
-            onPress={fetchOrdersByStatus}
+            onPress={fetchAllOrders}
             className="mt-4 bg-primary px-6 py-3 rounded-xl">
             <Text className="text-background font-bold">Try Again</Text>
           </TouchableOpacity>
         </View>
       ) : orders.length === 0 ? (
         <View className="flex-1 justify-center items-center p-6">
-          <Ionicons
-            name={currentConfig.icon as any}
-            size={70}
-            color="#cccccc"
-          />
+          <Ionicons name="receipt-outline" size={70} color="#cccccc" />
           <Text className="text-text/70 text-center mt-4 font-medium text-lg">
-            {currentConfig.emptyMessage}
+            No orders found
           </Text>
           <TouchableOpacity
             onPress={() => router.push("/(tabs)/games")}
@@ -182,22 +118,20 @@ const OrdersPage = () => {
         <View className="flex-1">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-secondary font-bold text-base">
-              {orders.length}{" "}
-              {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)} Order
-              {orders.length > 1 ? "s" : ""}
+              {orders.length} Order{orders.length > 1 ? "s" : ""}
             </Text>
-            <TouchableOpacity onPress={fetchOrdersByStatus}>
+            <TouchableOpacity onPress={fetchAllOrders}>
               <Ionicons name="refresh-outline" size={20} color="#17d171" />
             </TouchableOpacity>
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {[...orders] 
+            {[...orders]
               .sort(
                 (a, b) =>
                   new Date(b.createdAt).getTime() -
                   new Date(a.createdAt).getTime(),
-              ) // sort by date descending
+              )
               .map((item) => (
                 <RenderItem key={item.orderId} {...item} />
               ))}

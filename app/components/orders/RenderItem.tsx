@@ -5,6 +5,7 @@ import { formatDate } from "@/lib/common/formatDate";
 import { formatPrice } from "@/lib/common/formatPrice";
 import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { getStatusConfig } from "@/constants/StatusConfig";
 
 const RenderItem = (item: Orders) => {
   const router = useRouter();
@@ -15,39 +16,6 @@ const RenderItem = (item: Orders) => {
     },
     [router],
   );
-
-  const getStatusConfig = (status: string) => {
-    switch (status) {
-      case "pending":
-        return {
-          bgColor: "bg-yellow-100",
-          textColor: "text-yellow-800",
-          icon: "hourglass-outline" as const,
-          iconColor: "#ffc107",
-        };
-      case "processing":
-        return {
-          bgColor: "bg-blue-100",
-          textColor: "text-blue-800",
-          icon: "reload-circle-outline" as const,
-          iconColor: "#00bfff",
-        };
-      case "completed":
-        return {
-          bgColor: "bg-green-100",
-          textColor: "text-green-800",
-          icon: "checkmark-circle-outline" as const,
-          iconColor: "#32cd32",
-        };
-      default:
-        return {
-          bgColor: "bg-gray-100",
-          textColor: "text-gray-800",
-          icon: "help-circle-outline" as const,
-          iconColor: "#666",
-        };
-    }
-  };
 
   const getTypeIcon = (type: string) => {
     return type === "voucher" ? "gift-outline" : "card-outline";
@@ -61,7 +29,6 @@ const RenderItem = (item: Orders) => {
       onPress={() => handleRedirectDetailOrder(item.orderId)}
       activeOpacity={0.8}>
       <View className="p-4">
-        {/* Header with Order ID and Status */}
         <View className="flex-row justify-between items-center mb-3">
           <View className="flex-row items-center">
             <Text className="text-primary font-bold text-base">
@@ -86,10 +53,15 @@ const RenderItem = (item: Orders) => {
             <Text className={`${statusConfig.textColor} text-xs font-medium`}>
               {item.status.toUpperCase()}
             </Text>
+            {item.status === "pending" && item.redirectLink === null && (
+              <Text className={`${statusConfig.textColor} text-xs font-medium`}>
+                {" "}
+                PAID
+              </Text>
+            )}
           </View>
         </View>
 
-        {/* Game Info Card */}
         <View className="bg-white/50 rounded-lg p-3 mb-3">
           <View className="flex-row items-center mb-2">
             <Ionicons name="game-controller-outline" size={16} color="#666" />
@@ -110,7 +82,6 @@ const RenderItem = (item: Orders) => {
           </View>
         </View>
 
-        {/* Order Details */}
         <View className="space-y-2">
           <View className="flex-row justify-between items-center">
             <View className="flex-row items-center">
@@ -122,7 +93,6 @@ const RenderItem = (item: Orders) => {
             </Text>
           </View>
 
-          {/* Show target for topup type */}
           {item.type === "topup" && item.target && (
             <View className="flex-row justify-between items-center">
               <View className="flex-row items-center">
@@ -147,8 +117,7 @@ const RenderItem = (item: Orders) => {
         </View>
       </View>
 
-      {/* Action Buttons */}
-      {item.status === "pending" && item.redirectLink && (
+      {item.status === "pending" && item.redirectLink !== null && (
         <TouchableOpacity
           className="bg-primary py-3 items-center border-t border-border flex-row justify-center"
           onPress={() =>
@@ -180,6 +149,17 @@ const RenderItem = (item: Orders) => {
             <Ionicons name="hourglass" size={16} color="#00bfff" />
             <Text className="text-blue-700 font-medium ml-2 text-sm">
               Processing your order...
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {(item.status === "failed" || item.status === "cancelled") && (
+        <View className="bg-red-50 py-2 items-center border-t border-red-200">
+          <View className="flex-row items-center">
+            <Ionicons name="close-circle" size={16} color="#f44336" />
+            <Text className="text-red-700 font-medium ml-2 text-sm">
+              {item.status === "failed" ? "Order Failed" : "Order Cancelled"}
             </Text>
           </View>
         </View>
