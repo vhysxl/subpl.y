@@ -8,15 +8,15 @@ import {
 import { colors } from "@/constants/colors";
 import { useEffect, useState } from "react";
 import SearchBar from "../components/SearchBar";
-import { GameGridItem, GameListItem } from "../components/games/GameList";
 import { useProductStore } from "@/lib/stores/useProductStores";
 import { GameGroup } from "@/type";
 import BodyText from "../components/extras/BodyText";
 import Header from "../components/Header";
 import FailedMsg from "../components/extras/FailedMsg";
 import { useLocalSearchParams } from "expo-router";
-import { useConfigStore } from "@/lib/stores/useConfigStore";
 import { Ionicons } from "@expo/vector-icons";
+import GameGridItem from "../components/games/GameGridItem";
+import GameListItem from "../components/games/GameListItem";
 
 export default function Games() {
   const [viewMode, setViewMode] = useState("grid");
@@ -24,19 +24,13 @@ export default function Games() {
   const [games, setGames] = useState<GameGroup[]>([]);
   const params = useLocalSearchParams();
   const { products, fetchProducts, loading, error } = useProductStore();
-  const { apiUrl } = useConfigStore();
   const { query } = params;
-
-  if (!apiUrl) throw new Error("Config belum dimuat");
 
   useEffect(() => {
     if (query) {
       setSearchQuery(String(query));
     }
   }, [query]);
-
-  // const stringified = JSON.stringify(products, null, 2);
-  // console.log(stringified);
 
   // Filter games berdasarkan pencarian
   useEffect(() => {

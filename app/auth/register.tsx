@@ -1,23 +1,24 @@
-import { Link, Redirect, useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView, Text, View } from "react-native";
-import SystemMsg from "../components/extras/SystemMsg";
-import { registerSchema } from "@/lib/validation/validation";
+import { Link, useRouter } from "expo-router";
 import AuthField from "../components/auth/AuthField";
 import AuthButton from "../components/auth/AuthButton";
-import { useAuthStore } from "@/lib/stores/useAuthStore";
-import { useConfigStore } from "@/lib/stores/useConfigStore";
+import SystemMsg from "../components/extras/SystemMsg";
+import { useGuestGuard } from "@/lib/hooks/useGuestGuard";
+import { validateWithZod } from "@/lib/common/validator";
+import { registerSchema } from "@/lib/validation/validation";
+import { register } from "@/lib/fetcher/authFetch";
 
 export default function RegisterPage() {
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { user } = useAuthStore();
-  const { apiUrl } = useConfigStore();
   const router = useRouter();
+
+  useGuestGuard();
 
   //register logic
   const handleRegister = async () => {
@@ -25,88 +26,32 @@ export default function RegisterPage() {
       setError("");
       setIsLoading(true);
 
-      //validation layer 1 (kgk butuh sih cuma bodo amat)
-      if (!email || !name || !password) {
-        setError("Please fill all the required fields");
-        return;
-      }
+      const isValid = validateWithZod(
+        registerSchema,
+        { name, email, password },
+        setError,
+      );
+      if (!isValid) return;
 
       if (password !== confirmPassword) {
         setError("Password not match with confirm password");
         return;
       }
 
-      //validation layer 2
-      const validationResult = registerSchema.safeParse({
-        name: name.trim(),
-        email: email.trim(),
-        password,
-      });
+      await register(name, email, password);
 
-      if (!validationResult.success) {
-        const fieldErrors = validationResult.error.flatten().fieldErrors;
-        if (fieldErrors.name) {
-          setError(fieldErrors.name[0]);
-        } else if (fieldErrors.email) {
-          setError(fieldErrors.email[0]);
-        } else if (fieldErrors.password) {
-          setError(fieldErrors.password[0]);
-        } else {
-          setError("Invalid input.");
-        }
-
-        setIsLoading(false);
-        return;
-      }
-
-      //request register
-      const response = await fetch(`${apiUrl}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
-
-      if (user) {
-        //redirect kalau ada user authenticated
-        return <Redirect href={"/"} />;
-      }
-
-      //parse result
-      const result = await response.json();
-
-      //request gagal exception
-      if (!response.ok) {
-        setError(`Failed to register, ${result.message}.`);
-        return;
-      }
-
-      //redirect kalau gk kebegal
       router.replace("/auth/login");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to register:", error);
-      setError("An error occurred, please try again later. 😢");
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  //cleanup logic
-  useFocusEffect(
-    //cleanup error handler
-    useCallback(() => {
-      // Tidak perlu melakukan apa-apa saat fokus
-
-      return () => {
-        setError(""); // Bersihkan error saat screen tidak lagi difokuskan
-      };
-    }, []),
-  );
+  useEffect(() => {
+    return () => setError("");
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-background justify-center px-6">
@@ -160,10 +105,7 @@ export default function RegisterPage() {
         className="text-text text-center "
         style={{ fontFamily: "Nunito Regular" }}>
         Already Subpl.y member?{" "}
-        <Link
-          href="/auth/login"
-          replace
-          className="text-secondary underline">
+        <Link href="/auth/login" replace className="text-secondary underline">
           Login
         </Link>
       </Text>

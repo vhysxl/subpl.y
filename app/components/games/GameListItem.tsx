@@ -1,68 +1,23 @@
+import { useState } from "react";
 import { TouchableOpacity, View, Image } from "react-native";
+import { useRouter } from "expo-router";
 import BodyText from "../extras/BodyText";
 import { colors } from "@/constants/colors";
+import { handleGameRedirect } from "@/lib/common/gameRedirect";
 import { GameGroup } from "@/type";
-import { useRouter } from "expo-router";
 
-// Komponen Grid
-export const GameGridItem = ({ game }: { game: GameGroup }) => {
+const GameListItem = ({ game }: { game: GameGroup }) => {
   const router = useRouter();
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
 
   const handleGamePress = () => {
-    router.push(`/game/${game.gameId}`);
+    handleGameRedirect(game.gameId, router, setIsRedirecting);
   };
 
   return (
     <TouchableOpacity
       key={game.gameId}
-      onPress={handleGamePress}
-      className="mb-4 border border-secondary/30 rounded-lg"
-      style={{ width: "48%" }}>
-      <View className="rounded-lg overflow-hidden">
-        <Image
-          source={{ uri: game.imageUrl }}
-          style={{ width: "100%", aspectRatio: 1, resizeMode: "cover" }}
-        />
-        {game.isPopular && (
-          <View
-            style={{
-              position: "absolute",
-              top: 8,
-              right: 8,
-              backgroundColor: colors.accent,
-              paddingHorizontal: 8,
-              paddingVertical: 3,
-              borderRadius: 4,
-            }}>
-            <BodyText style={{ color: "white", fontSize: 10 }}>
-              Popular
-            </BodyText>
-          </View>
-        )}
-        <View className="p-2">
-          <BodyText
-            className="font-semibold"
-            style={{ color: colors.text }}
-            numberOfLines={1}>
-            {game.gameName}
-          </BodyText>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-// Komponen List
-export const GameListItem = ({ game }: { game: GameGroup }) => {
-  const router = useRouter();
-
-  const handleGamePress = () => {
-    router.push(`/game/${game.gameId}`);
-  };
-
-  return (
-    <TouchableOpacity
-      key={game.gameId}
+      disabled={isRedirecting}
       onPress={handleGamePress}
       className="mb-3">
       <View
@@ -104,3 +59,5 @@ export const GameListItem = ({ game }: { game: GameGroup }) => {
     </TouchableOpacity>
   );
 };
+
+export default GameListItem;

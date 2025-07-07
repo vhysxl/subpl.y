@@ -158,3 +158,37 @@ export const searchUser = async (name: string): Promise<User[]> => {
     throw new Error(`Failed to search user: ${error}`);
   }
 };
+
+export const changePassword = async (
+  password: string,
+  newPassword: string,
+  userId: string,
+) => {
+  try {
+    const token = await AsyncStorage.getItem("token");
+    const config = await fetchConfig();
+
+    const response = await fetch(`${config.apiUrl}/users/password/${userId}`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        newPassword,
+        oldPassword: password,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Failed to change password");
+    }
+
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Failed to change password: ${error}`);
+  }
+};

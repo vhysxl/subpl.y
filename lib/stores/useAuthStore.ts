@@ -32,8 +32,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
           },
         });
 
-        console.log(res);
-
         if (res.ok) {
           const data = await res.json();
 
@@ -42,7 +40,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
             name: data.name,
             email: data.email,
             createdAt: data.createdAt,
-            roles: data.roles, // Pastikan roles ikut masuk
+            roles: data.roles,
           };
 
           if (data) {

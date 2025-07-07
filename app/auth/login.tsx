@@ -1,37 +1,26 @@
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, View } from "react-native";
-import React, { useCallback, useState } from "react";
-import { Link, useFocusEffect } from "expo-router";
-import SystemMsg from "../components/extras/SystemMsg";
-import { useRouter } from "expo-router";
-import { loginSchema } from "@/lib/validation/validation";
+import { Link, useRouter } from "expo-router";
 import AuthField from "../components/auth/AuthField";
 import AuthButton from "../components/auth/AuthButton";
-import { useAuthStore } from "@/lib/stores/useAuthStore";
+import SystemMsg from "../components/extras/SystemMsg";
 import BodyText from "../components/extras/BodyText";
 import HeadingText from "../components/extras/HeadingText";
-import { useConfigStore } from "@/lib/stores/useConfigStore";
-import { useBackHandler } from "@/lib/hooks/useBackHandler";
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import { useGuestGuard } from "@/lib/hooks/useGuestGuard";
+import { validateWithZod } from "@/lib/common/validator";
+import { loginSchema } from "@/lib/validation/validation";
+import { loginReq } from "@/lib/fetcher/authFetch";
 
 const Login = () => {
   const { login } = useAuthStore(); //zustand
-  const { apiUrl } = useConfigStore(); //zustand
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const router = useRouter();
 
-  //back handler
-  useBackHandler("/");
-
-  //cleanup logic
-  useFocusEffect(
-    useCallback(() => {
-      return () => {
-        setError("");
-      };
-    }, []),
-  );
+  useGuestGuard();
 
   //login logic
   const handleLogin = async () => {
@@ -39,60 +28,31 @@ const Login = () => {
       setError("");
       setIsLoading(true);
 
-      //validation layer 1 (kgk butuh sih cuma bodo amat)
-      if (!email || !password) {
-        setError("Please fill all the required fields");
-        return;
-      }
-
-      //validation layer 2
-      const validationResult = loginSchema.safeParse({
-        email,
-        password,
-      });
-
-      if (!validationResult.success) {
-        const fieldErrors = validationResult.error.flatten().fieldErrors;
-
-        if (fieldErrors.email) {
-          setError(fieldErrors.email[0]);
-        } else if (fieldErrors.password) {
-          setError(fieldErrors.password[0]);
-        } else {
-          setError("Invalid input.");
-        }
-
-        return;
-      }
+      const isValid = validateWithZod(
+        loginSchema,
+        { email, password },
+        setError,
+      );
+      if (!isValid) return;
 
       //request login
-      const response = await fetch(`${apiUrl}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      //parse result
-      const result = await response.json();
-
-      if (!response.ok) {
-        setError(`Failed to login, ${result.message}.`);
-        return;
-      }
+      const result = await loginReq(email, password);
 
       //login pake zustand
       await login(result.user, result.token);
 
       router.replace("/");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
-      setError("An error occurred. Please try again later.");
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    return () => setError("");
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-background justify-center px-6">
@@ -129,7 +89,10 @@ const Login = () => {
 
       <BodyText className="text-text text-center">
         New to Subpl.y?{" "}
-        <Link href={"/auth/register"} replace className="text-secondary underline">
+        <Link
+          href={"/auth/register"}
+          replace
+          className="text-secondary underline">
           Register
         </Link>
       </BodyText>

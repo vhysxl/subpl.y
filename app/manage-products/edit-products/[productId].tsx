@@ -305,16 +305,18 @@ const EditProductPage = () => {
           />
         </View>
 
-        <View className="mb-10">
-          <AdminButton
-            title={saving ? "Deleting..." : "Delete Product"}
-            onPress={handleDelete}
-            type="danger"
-            fullWidth
-            disabled={saving}
-            loading={saving}
-          />
-        </View>
+        {isSuperAdmin && (
+          <View className="mb-10">
+            <AdminButton
+              title={saving ? "Deleting..." : "Delete Product"}
+              onPress={handleDelete}
+              type="danger"
+              fullWidth
+              disabled={saving}
+              loading={saving}
+            />
+          </View>
+        )}
       </ScrollView>
     </View>
   );

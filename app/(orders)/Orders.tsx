@@ -24,38 +24,13 @@ const OrdersPage = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fetchAllOrders = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const userId = user?.userId;
-
-      if (!userId) {
-        setError("Invalid user, please login with valid user");
-        return;
-      }
-
-      const ordersData = await fetchOrders(userId);
-      setOrders(ordersData);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-      setError("Failed to load your orders. Please try again.");
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useAuthGuard();
 
-  if (!user) {
-    return null;
-  }
-
   useEffect(() => {
-    fetchAllOrders();
-  }, []);
+    if (user) {
+      fetchAllOrders();
+    }
+  }, [user]);
 
   useEffect(() => {
     //back to home handler
@@ -71,6 +46,32 @@ const OrdersPage = () => {
 
     return () => backHandler.remove();
   }, []);
+
+  const fetchAllOrders = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const userId = user?.userId;
+
+      if (!userId) {
+        setError("Invalid user, please login with valid user");
+        return;
+      }
+      const ordersData = await fetchOrders(userId);
+      setOrders(ordersData);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setError("Failed to load your orders. Please try again.");
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-background px-6 pt-8">
@@ -126,15 +127,9 @@ const OrdersPage = () => {
           </View>
 
           <ScrollView showsVerticalScrollIndicator={false}>
-            {[...orders]
-              .sort(
-                (a, b) =>
-                  new Date(b.createdAt).getTime() -
-                  new Date(a.createdAt).getTime(),
-              )
-              .map((item) => (
-                <RenderItem key={item.orderId} {...item} />
-              ))}
+            {[...orders].map((item) => (
+              <RenderItem key={item.orderId} {...item} />
+            ))}
           </ScrollView>
         </View>
       )}

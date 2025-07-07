@@ -70,3 +70,9 @@ export const gameSchema = z.object({
     invalid_type_error: "Popular status must be true or false",
   }),
 });
+
+export const passwordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "New password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your new password"),
+});

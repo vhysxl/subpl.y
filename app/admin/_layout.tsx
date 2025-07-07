@@ -6,7 +6,7 @@ import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { BackHandler } from "react-native";
 
 const AdminLayout = () => {
-  const { isAdmin, isSuperAdmin } = useAuthStore();
+  const { isAdmin, isSuperAdmin, user } = useAuthStore();
   const router = useRouter();
 
   //disable backhandler
@@ -28,10 +28,12 @@ const AdminLayout = () => {
   );
 
   useEffect(() => {
-    if (!isAdmin && !isSuperAdmin) {
+    if (!user) {
+      router.replace("/auth/login");
+    } else if (user && !isAdmin && !isSuperAdmin) {
       router.replace("/");
     }
-  }, [isAdmin, isSuperAdmin]);
+  }, [user, isAdmin, isSuperAdmin, router]);
 
   if (!isAdmin && !isSuperAdmin) {
     return null;

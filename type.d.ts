@@ -46,7 +46,7 @@ export interface Orders {
   type: string;
   gameName: string;
   quantity: number;
-  redirectLink?: string;
+  paymentLink?: string;
   code?: string;
   paymentStatus: string;
 }
@@ -113,5 +113,5 @@ export interface OrderDetail {
   gameName: string;
   quantity: number;
   paymentLink?: string | null;
-  voucherCodes?: string[];
+  voucherCode?: string[];
 }

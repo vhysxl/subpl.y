@@ -14,6 +14,7 @@ import AdminEditFields from "../components/admin/AdminEditFields";
 import { userSchema } from "@/lib/validation/validation";
 import { validateWithZod } from "@/lib/common/validator";
 import { useAutoDismissMessage } from "@/lib/hooks/useDismissMessage";
+import { Picker } from "@react-native-picker/picker";
 
 const EditUserPage = () => {
   const router = useRouter();
@@ -27,12 +28,15 @@ const EditUserPage = () => {
   const [validationError, setValidationError] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  const [selectedRoles, setSelectedRoles] = useState<
-    ("admin" | "user" | "superadmin")[]
-  >([]);
+  const [selectedRole, setSelectedRole] = useState<string>("");
+
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false);
 
   useAutoDismissMessage(validationError, setValidationError, 5000);
-  const availableRoles = ["user", "admin", "superadmin"] as const;
+
+  const availableRoles = isSuperAdminUser
+    ? (["user", "admin", "superadmin"] as const)
+    : (["user", "admin"] as const);
 
   useEffect(() => {
     if (isSuperAdmin === false) {
@@ -54,7 +58,18 @@ const EditUserPage = () => {
       setUser(userData);
       setName(userData.name);
       setEmail(userData.email);
-      setSelectedRoles(userData.roles as ("admin" | "user" | "superadmin")[]);
+
+      const userRoles = userData.roles as string[];
+
+      // Handle superadmin - jangan biarkan diedit rolenya
+      if (userRoles.includes("superadmin")) {
+        setSelectedRole("superadmin");
+        setIsSuperAdminUser(true); // Add state untuk track ini
+      } else if (userRoles.includes("admin")) {
+        setSelectedRole("admin");
+      } else {
+        setSelectedRole("user");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -62,24 +77,27 @@ const EditUserPage = () => {
     }
   };
 
-  const toggleRole = (role: "admin" | "user" | "superadmin") => {
-    setValidationError(null);
-    setSelectedRoles((prev) => {
-      if (prev.includes(role)) {
-        return prev.filter((r) => r !== role);
-      } else {
-        return [...prev, role];
-      }
-    });
-  };
-
   const handleSave = async () => {
     setValidationError(null);
     setError(null);
 
+    let roles: ("user" | "admin" | "superadmin")[] = [];
+
+    // Handle superadmin user - jangan ubah rolenya
+    if (isSuperAdminUser) {
+      roles = ["user", "admin", "superadmin"];
+    } else if (selectedRole === "admin") {
+      roles = ["user", "admin"];
+    } else if (selectedRole === "user") {
+      roles = ["user"];
+    } else {
+      setError("Please select a valid role");
+      return;
+    }
+
     const isValid = validateWithZod(
       userSchema,
-      { name, email, roles: selectedRoles },
+      { name, email, roles: roles },
       setValidationError,
     );
 
@@ -90,7 +108,7 @@ const EditUserPage = () => {
       await updateUser(userId, {
         name: name.trim(),
         email: email.trim(),
-        roles: selectedRoles,
+        roles: roles,
       });
 
       setSuccessMsg("User updated successfully!");
@@ -191,44 +209,45 @@ const EditUserPage = () => {
             autoCapitalize="none"
           />
 
-          <View className="mb-4">
-            <BodyText className="text-gray-700 mb-3 font-medium">
-              Roles
-            </BodyText>
-            <View className="space-y-2">
-              {availableRoles.map((role) => (
-                <TouchableOpacity
-                  key={role}
-                  onPress={() => toggleRole(role)}
-                  className={`flex-row items-center p-3 rounded-lg border ${
-                    selectedRoles.includes(role)
-                      ? "bg-blue-50 border-blue-300"
-                      : "bg-gray-50 border-gray-200"
-                  }`}>
-                  <View
-                    className={`w-5 h-5 rounded border-2 mr-3 ${
-                      selectedRoles.includes(role)
-                        ? "bg-primary border-primary"
-                        : "border-gray-300"
-                    }`}>
-                    {selectedRoles.includes(role) && (
-                      <BodyText className="text-white text-xs text-center">
-                        ✓
-                      </BodyText>
-                    )}
-                  </View>
-                  <BodyText
-                    className={`capitalize ${
-                      selectedRoles.includes(role)
-                        ? "text-blue-700"
-                        : "text-gray-700"
-                    }`}>
-                    {role}
+          {isSuperAdmin && (
+            <View className="mb-4">
+              <BodyText className="text-gray-700 mb-3 font-medium">
+                Role
+              </BodyText>
+
+              {isSuperAdminUser ? (
+                // Read-only untuk superadmin user
+                <View className="p-3 border border-gray-200 rounded-lg bg-gray-50">
+                  <BodyText className="text-gray-700 font-medium">
+                    Super Administrator
                   </BodyText>
-                </TouchableOpacity>
-              ))}
+                  <BodyText className="text-gray-500 text-sm mt-1">
+                    Superadmin role cannot be changed
+                  </BodyText>
+                </View>
+              ) : (
+                // Editable untuk user/admin biasa
+                <View className="border border-gray-200 rounded-lg">
+                  <Picker
+                    selectedValue={selectedRole}
+                    onValueChange={(value) => setSelectedRole(value)}
+                    style={{
+                      height: 50,
+                      color: "#000000", // Text hitam
+                      backgroundColor: "#ffffff",
+                    }}>
+                    {availableRoles.map((role) => (
+                      <Picker.Item
+                        key={role}
+                        label={role.charAt(0).toUpperCase() + role.slice(1)}
+                        value={role}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              )}
             </View>
-          </View>
+          )}
         </View>
 
         <View className="flex-row space-x-3 mb-6 gap-2">
@@ -248,16 +267,14 @@ const EditUserPage = () => {
             fullWidth={false}
           />
         </View>
-        <View className="mb-10">
-          <AdminButton
-            title={saving ? "Deleting..." : "Delete User"}
-            onPress={handleDelete}
-            type="danger"
-            fullWidth
-            disabled={saving}
-            loading={saving}
-          />
-        </View>
+        <AdminButton
+          title={saving ? "Deleting..." : "Delete User"}
+          onPress={handleDelete}
+          type="danger"
+          fullWidth
+          disabled={saving || isSuperAdminUser} // Disable untuk superadmin
+          loading={saving}
+        />
       </ScrollView>
     </View>
   );

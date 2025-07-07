@@ -11,6 +11,7 @@ import { generatePDF } from "@/lib/common/pdfReportGenerator";
 import { AuditLog, DashboardStats } from "@/type";
 import { auditFetch } from "@/lib/fetcher/auditFetch";
 import { formatDate } from "@/lib/common/formatDate";
+import { useAuthGuard } from "@/lib/hooks/useAuthGuard";
 
 const Home = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -21,6 +22,8 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(true);
   const { user } = useAuthStore();
+
+  useAuthGuard();
 
   const fetchDashboardStats = async () => {
     try {
@@ -36,6 +39,7 @@ const Home = () => {
     }
   };
 
+  //ini aduit woi
   const fetchAuditLogs = async (page: number = 1) => {
     try {
       setAuditLoading(true);
@@ -55,6 +59,7 @@ const Home = () => {
     }
   };
 
+  //pagination control
   const handlePrevPage = () => {
     if (currentPage > 1) {
       setCurrentPage((prev) => prev - 1);

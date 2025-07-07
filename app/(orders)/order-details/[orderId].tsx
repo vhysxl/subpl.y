@@ -8,6 +8,7 @@ import {
   BackHandler,
   Alert,
   Clipboard,
+  Linking,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -230,7 +231,9 @@ const OrderDetailPage = () => {
             <View className="flex-row justify-between">
               <Text className="text-secondary">Value</Text>
               <Text className="text-text font-medium">
-                {formatCurrency(orderDetail.value)}
+                {orderDetail.type === "voucher"
+                  ? formatCurrency(orderDetail.value)
+                  : orderDetail.value}
               </Text>
             </View>
 
@@ -261,17 +264,17 @@ const OrderDetailPage = () => {
 
         {orderDetail.type === "voucher" &&
           orderDetail.status === "completed" &&
-          orderDetail.voucherCodes &&
-          orderDetail.voucherCodes.length > 0 && (
+          orderDetail.voucherCode &&
+          orderDetail.voucherCode.length > 0 && (
             <View className="bg-green-50 rounded-xl p-6 mb-4 border border-green-200">
               <View className="flex-row items-center mb-4">
                 <Ionicons name="gift-outline" size={24} color="#32cd32" />
                 <Text className="text-lg font-bold text-green-800 ml-2">
-                  Voucher Code{orderDetail.voucherCodes.length > 1 ? "s" : ""}
+                  Voucher Code{orderDetail.voucherCode.length > 1 ? "s" : ""}
                 </Text>
               </View>
 
-              {orderDetail.voucherCodes.map((code, index) => (
+              {orderDetail.voucherCode.map((code, index) => (
                 <TouchableOpacity
                   key={index}
                   onPress={() => copyToClipboard(code, "Voucher Code")}
@@ -290,32 +293,35 @@ const OrderDetailPage = () => {
           )}
 
         {/* Payment Link Card - Only show if status is not completed and paymentLink exists */}
-        {orderDetail.status !== "completed" && orderDetail.paymentLink && (
-          <View className="bg-blue-50 rounded-xl p-6 mb-4 border border-blue-200">
-            <View className="flex-row items-center mb-4">
-              <Ionicons name="card-outline" size={24} color="#00bfff" />
-              <Text className="text-lg font-bold text-blue-800 ml-2">
-                Payment
+        {orderDetail.status !== "completed" &&
+          orderDetail.status !== "cancelled" &&
+          orderDetail.status !== "failed" &&
+          orderDetail.paymentLink && (
+            <View className="bg-blue-50 rounded-xl p-6 mb-4 border border-blue-200">
+              <View className="flex-row items-center mb-4">
+                <Ionicons name="card-outline" size={24} color="#00bfff" />
+                <Text className="text-lg font-bold text-blue-800 ml-2">
+                  Payment
+                </Text>
+              </View>
+
+              <Text className="text-blue-600 mb-4">
+                Complete your payment to process this order
               </Text>
+
+              <TouchableOpacity
+                onPress={() => {
+                  router.push({
+                    pathname: "/paymentScreen",
+                    params: { paymentUrl: orderDetail.paymentLink },
+                  });
+                }}
+                className="bg-blue-500 rounded-lg p-4 flex-row items-center justify-center">
+                <Ionicons name="open-outline" size={20} color="white" />
+                <Text className="text-white font-bold ml-2">Pay Now</Text>
+              </TouchableOpacity>
             </View>
-
-            <Text className="text-blue-600 mb-4">
-              Complete your payment to process this order
-            </Text>
-
-            <TouchableOpacity
-              onPress={() => {
-                router.push({
-                  pathname: "/paymentScreen",
-                  params: { paymentUrl: orderDetail.paymentLink },
-                });
-              }}
-              className="bg-blue-500 rounded-lg p-4 flex-row items-center justify-center">
-              <Ionicons name="open-outline" size={20} color="white" />
-              <Text className="text-white font-bold ml-2">Pay Now</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+          )}
 
         <View className="bg-white rounded-xl p-6 mb-4 shadow-sm border border-border/20">
           <Text className="text-lg font-bold text-text mb-4">
@@ -353,7 +359,10 @@ const OrderDetailPage = () => {
                     { text: "No", style: "cancel" },
                     {
                       text: "Yes",
-                      onPress: () => cancelOrder(orderId),
+                      onPress: () => {
+                        cancelOrder(orderId);
+                        router.back();
+                      },
                     },
                   ],
                 );
@@ -367,7 +376,16 @@ const OrderDetailPage = () => {
 
           <TouchableOpacity
             onPress={() => {
-              // Handle contact support
+              const phone = "6281282262911";
+              const message = "Halo, saya butuh bantuan 🙏";
+
+              const url = `https://wa.me/${phone}?text=${encodeURIComponent(
+                message,
+              )}`;
+
+              Linking.openURL(url).catch(() =>
+                alert("Failed to open whatsapp"),
+              );
             }}
             className="bg-gray-200 rounded-xl p-4">
             <Text className="text-gray-700 font-bold text-center">

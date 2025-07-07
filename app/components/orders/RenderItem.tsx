@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity } from "react-native";
-import React, { useCallback } from "react";
+import React, { useState } from "react";
 import { Orders } from "@/type";
 import { formatDate } from "@/lib/common/formatDate";
 import { formatPrice } from "@/lib/common/formatPrice";
@@ -9,13 +9,16 @@ import { getStatusConfig } from "@/constants/StatusConfig";
 
 const RenderItem = (item: Orders) => {
   const router = useRouter();
+  const [isPressed, setIsPressed] = useState(false);
 
-  const handleRedirectDetailOrder = useCallback(
-    (orderId: string) => {
-      router.push(`/(orders)/order-details/${orderId}`);
-    },
-    [router],
-  );
+  const handleRedirectDetailOrder = (orderId: string) => {
+    if (isPressed) return;
+
+    setIsPressed(true);
+    router.push(`/(orders)/order-details/${orderId}`);
+
+    setTimeout(() => setIsPressed(false), 1000);
+  };
 
   const getTypeIcon = (type: string) => {
     return type === "voucher" ? "gift-outline" : "card-outline";
@@ -26,6 +29,7 @@ const RenderItem = (item: Orders) => {
   return (
     <TouchableOpacity
       className="bg-backgroundSecondary border-border/20 border rounded-xl mb-4 overflow-hidden shadow-sm"
+      disabled={isPressed}
       onPress={() => handleRedirectDetailOrder(item.orderId)}
       activeOpacity={0.8}>
       <View className="p-4">
@@ -53,7 +57,7 @@ const RenderItem = (item: Orders) => {
             <Text className={`${statusConfig.textColor} text-xs font-medium`}>
               {item.status.toUpperCase()}
             </Text>
-            {item.status === "pending" && item.redirectLink === null && (
+            {item.status === "pending" && item.paymentLink === null && (
               <Text className={`${statusConfig.textColor} text-xs font-medium`}>
                 {" "}
                 PAID
@@ -117,13 +121,13 @@ const RenderItem = (item: Orders) => {
         </View>
       </View>
 
-      {item.status === "pending" && item.redirectLink !== null && (
+      {item.status === "pending" && item.paymentLink !== null && (
         <TouchableOpacity
           className="bg-primary py-3 items-center border-t border-border flex-row justify-center"
           onPress={() =>
             router.push({
               pathname: "/paymentScreen",
-              params: { paymentUrl: item.redirectLink },
+              params: { paymentUrl: item.paymentLink },
             })
           }
           activeOpacity={0.8}>

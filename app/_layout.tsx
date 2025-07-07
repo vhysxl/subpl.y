@@ -2,7 +2,7 @@ import { Stack, useRouter } from "expo-router";
 import "./global.css";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useProductStore } from "@/lib/stores/useProductStores";
 import { fetchConfig } from "@/lib/fetcher/configFetch";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
@@ -16,7 +16,8 @@ SplashScreen.setOptions({
 
 export default function RootLayout() {
   const fetchProducts = useProductStore((state) => state.fetchProducts); // Global fetch
-  const { user, isAdmin } = useAuthStore();
+  const { loadUser, authLoading } = useAuthStore();
+  const [isAppReady, setIsAppReady] = useState(false);
 
   const [fontsLoaded, fontError] = useFonts({
     "Fredoka Regular": require("../assets/fonts/Fredoka-Regular.ttf"),
@@ -27,21 +28,25 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    loadUser(); // panggil loadUser untuk check AsyncStorage + API
+  }, []);
+
+  // Set app ready ketika fonts loaded DAN auth selesai
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && !authLoading) {
+      setIsAppReady(true);
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, authLoading]);
 
   useEffect(() => {
-    fetchConfig(); // ambil config saat app mulai
-  }, []);
+    if (isAppReady) {
+      fetchConfig();
+      fetchProducts();
+    }
+  }, [isAppReady]);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  // Render null if fonts aren't loaded and there's no error
-  if (!fontsLoaded && !fontError) return null;
+  if (!isAppReady) return null;
 
   return (
     <Stack

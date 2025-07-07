@@ -1,12 +1,6 @@
-import {
-  View,
-  Text,
-  SafeAreaView,
-  Pressable,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, SafeAreaView, Pressable } from "react-native";
 import React from "react";
-import { useRouter, Link } from "expo-router";
+import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useAuthGuard } from "@/lib/hooks/useAuthGuard";
@@ -44,6 +38,7 @@ const Profile = () => {
         <UserDetails label={"Member Since"} createdAt={dateJoined} />
       </View>
 
+      {/* DRY */}
       <Pressable
         onPress={() => router.push("/edit-profile/EditProfile")}
         className="py-3 rounded-xl items-center bg-primary">
@@ -51,6 +46,17 @@ const Profile = () => {
           <Ionicons name="create-outline" size={20} color="white" />
           <Text className="text-background font-bold text-base">
             Edit Profile
+          </Text>
+        </View>
+      </Pressable>
+
+      <Pressable
+        onPress={() => router.push("/edit-profile/EditPassword")}
+        className="py-3 rounded-xl items-center bg-accent">
+        <View className="flex-row gap-x-2 items-center">
+          <Ionicons name="lock-closed-outline" size={20} color="white" />
+          <Text className="text-background font-bold text-base">
+            Change Password
           </Text>
         </View>
       </Pressable>

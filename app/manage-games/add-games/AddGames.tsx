@@ -67,7 +67,9 @@ const addGames = () => {
       setSaving(true);
       await createGames(gameData);
       setSuccessMsg("Game added successfully!");
-      resetForm();
+      setTimeout(() => {
+        resetForm();
+      }, 3000);
     } catch (error: any) {
       setError(error.message || "Failed to add game");
     } finally {

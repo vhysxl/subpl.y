@@ -91,7 +91,6 @@ export default function Index() {
     <SafeAreaView
       className="flex-1"
       style={{ backgroundColor: colors.background }}>
-      {/* Header */}
       <Header />
 
       <ScrollView
@@ -99,7 +98,6 @@ export default function Index() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }>
-        {/* Welcome Message */}
         <View className="px-4 py-3">
           {user ? (
             <HeadingText className="text-xl text-text">
@@ -155,7 +153,6 @@ export default function Index() {
           />
         </View>
 
-        {/* Featured Games */}
         <View className="space-y-2 border-border border-y border-dashed bg-backgroundSecondary py-4">
           {loading ? (
             <View className="items-center justify-center py-8">
@@ -189,7 +186,7 @@ export default function Index() {
   /> */}
         </View>
 
-        {/* Quick Topup Section */}
+        {/* quick topup ini dawg */}
         <View className="px-4 mb-6 py-10 bg-primary">
           <View className="bg-backgroundSecondary rounded-lg p-4 border border-border">
             <View className="flex-row items-center justify-between mb-4">

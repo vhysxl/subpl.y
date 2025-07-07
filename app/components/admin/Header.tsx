@@ -24,7 +24,7 @@ const Header = ({ Heading, Body }: HeaderProps) => {
         <Pressable
           onPress={() => {
             logout();
-            router.replace("/login");
+            router.replace("/auth/login");
           }}
           className="mt-auto py-3 rounded-xl items-center">
           <View className="flex-row gap-x-2 items-center">

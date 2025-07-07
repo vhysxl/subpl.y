@@ -11,21 +11,26 @@ import { useAutoDismissMessage } from "@/lib/hooks/useDismissMessage";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import HeadingText from "../components/extras/HeadingText";
 import { validateWithZod } from "@/lib/common/validator";
-import { userSchema } from "@/lib/validation/validation";
-import { upateProfile } from "@/lib/fetcher/usersFetch";
+import { passwordSchema } from "@/lib/validation/validation"; // Assuming you have this schema
 import { Ionicons } from "@expo/vector-icons";
 import BodyText from "../components/extras/BodyText";
+import { changePassword } from "@/lib/fetcher/usersFetch";
 
-const EditProfilePage = () => {
+const EditPassword = () => {
   const router = useRouter();
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
+  const [currentPassword, setCurrentPassword] = useState<string>("");
+  const [newPassword, setNewPassword] = useState<string>("");
+  const [confirmPassword, setConfirmPassword] = useState<string>("");
+  const [showCurrentPassword, setShowCurrentPassword] =
+    useState<boolean>(false);
+  const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
   const { user, loadUser } = useAuthStore();
-  const [roles, setRoles] = useState<("admin" | "user" | "superadmin")[]>([]);
 
   useAutoDismissMessage(validationError, setValidationError, 5000);
 
@@ -34,10 +39,6 @@ const EditProfilePage = () => {
       router.replace("/");
       return;
     }
-
-    setName(user.name);
-    setEmail(user.email);
-    setRoles(user.roles as ("admin" | "user" | "superadmin")[]);
   }, [user]);
 
   const handleSave = async () => {
@@ -47,9 +48,15 @@ const EditProfilePage = () => {
     }
 
     setValidationError(null);
+
+    if (newPassword !== confirmPassword) {
+      setValidationError("New passwords do not match");
+      return;
+    }
+
     const isValid = validateWithZod(
-      userSchema,
-      { name, email, roles },
+      passwordSchema,
+      { currentPassword, newPassword, confirmPassword },
       setValidationError,
     );
 
@@ -57,15 +64,16 @@ const EditProfilePage = () => {
 
     try {
       setSaving(true);
-      await upateProfile(user.userId, {
-        email: email.trim(),
-        name: name.trim(),
-      });
+      await changePassword(currentPassword, newPassword, user.userId);
 
-      loadUser();
+      setSuccessMsg("Password updated successfully!");
 
-      setSuccessMsg("Profile updated successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
       setTimeout(() => {
+        loadUser();
         router.back();
       }, 1500);
     } catch (error: any) {
@@ -100,43 +108,91 @@ const EditProfilePage = () => {
           <Ionicons name="arrow-back" size={24} color="#000" />
         </Pressable>
         <HeadingText className="text-2xl font-bold text-text flex-1">
-          Edit Profile
+          Change Password
         </HeadingText>
       </View>
 
       <View className="w-24 h-24 rounded-full bg-primary border justify-center items-center self-center mb-8">
-        <BodyText className="text-4xl font-bold text-background">
-          {name ? name.charAt(0).toUpperCase() : "U"}
-        </BodyText>
+        <Ionicons name="lock-closed" size={32} color="white" />
       </View>
 
       <View className="space-y-4 border border-border/20 bg-secondary/20 p-4 rounded-lg mb-6">
         <View className="space-y-2">
           <BodyText className="text-text font-semibold text-base">
-            Name
+            Current Password
           </BodyText>
-          <TextInput
-            value={name}
-            onChangeText={setName}
-            placeholder="Enter your name"
-            className="border border-border rounded-lg px-4 py-3 bg-background text-text"
-            placeholderTextColor="#666"
-          />
+          <View className="relative">
+            <TextInput
+              autoCapitalize="none"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              placeholder="Enter current password"
+              secureTextEntry={!showCurrentPassword}
+              className="border border-border rounded-lg px-4 py-3 bg-background text-text pr-12"
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              onPress={() => setShowCurrentPassword(!showCurrentPassword)}
+              className="absolute right-4 top-3">
+              <Ionicons
+                name={showCurrentPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#666"
+              />
+            </Pressable>
+          </View>
         </View>
 
         <View className="space-y-2">
           <BodyText className="text-text font-semibold text-base">
-            Email
+            New Password
           </BodyText>
-          <TextInput
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Enter your email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            className="border border-border rounded-lg px-4 py-3 bg-background text-text"
-            placeholderTextColor="#666"
-          />
+          <View className="relative">
+            <TextInput
+              autoCapitalize="none"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              placeholder="Enter new password"
+              secureTextEntry={!showNewPassword}
+              className="border border-border rounded-lg px-4 py-3 bg-background text-text pr-12"
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              onPress={() => setShowNewPassword(!showNewPassword)}
+              className="absolute right-4 top-3">
+              <Ionicons
+                name={showNewPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#666"
+              />
+            </Pressable>
+          </View>
+        </View>
+
+        <View className="space-y-2">
+          <BodyText className="text-text font-semibold text-base">
+            Confirm New Password
+          </BodyText>
+          <View className="relative">
+            <TextInput
+              autoCapitalize="none"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              placeholder="Confirm new password"
+              secureTextEntry={!showConfirmPassword}
+              className="border border-border rounded-lg px-4 py-3 bg-background text-text pr-12"
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-4 top-3">
+              <Ionicons
+                name={showConfirmPassword ? "eye-off" : "eye"}
+                size={20}
+                color="#666"
+              />
+            </Pressable>
+          </View>
         </View>
       </View>
 
@@ -160,25 +216,29 @@ const EditProfilePage = () => {
         </View>
       )}
 
-      <View className="space-y-3 mt-auto mb-2">
+      <View className="space-y-3 gap-3 mt-auto ">
         <Pressable
           onPress={handleSave}
-          disabled={saving}
+          disabled={
+            saving || !currentPassword || !newPassword || !confirmPassword
+          }
           className={`py-4 rounded-xl items-center ${
-            saving ? "bg-gray-400" : "bg-primary"
+            saving || !currentPassword || !newPassword || !confirmPassword
+              ? "bg-gray-400"
+              : "bg-primary"
           }`}>
           {saving ? (
             <View className="flex-row items-center space-x-2">
               <ActivityIndicator size="small" color="white" />
               <BodyText className="text-background font-bold text-base ml-2">
-                Saving...
+                Updating...
               </BodyText>
             </View>
           ) : (
             <View className="flex-row items-center space-x-2">
-              <Ionicons name="save-outline" size={20} color="white" />
+              <Ionicons name="shield-checkmark" size={20} color="white" />
               <BodyText className="text-background font-bold text-base ml-2">
-                Save Changes
+                Update Password
               </BodyText>
             </View>
           )}
@@ -197,4 +257,4 @@ const EditProfilePage = () => {
   );
 };
 
-export default EditProfilePage;
+export default EditPassword;
