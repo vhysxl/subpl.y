@@ -1,6 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+import { View, TextInput, TouchableOpacity } from "react-native";
 import React, { Dispatch, SetStateAction } from "react";
-import BodyText from "../extras/BodyText";
+import BodyText from "../ui/BodyText";
 
 interface AdminSearchBarProps {
   placeholder: string;

@@ -1,6 +1,6 @@
 import { View, TouchableOpacity } from "react-native";
 import React from "react";
-import BodyText from "../extras/BodyText";
+import BodyText from "../ui/BodyText";
 
 interface PaginationControlsProps {
   onPressNext: () => void;

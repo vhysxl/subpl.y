@@ -2,14 +2,14 @@ import { View, FlatList, TouchableOpacity, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
 import { searchUser, userFetch } from "@/lib/fetcher/usersFetch";
 import { User } from "@/type";
-import BodyText from "../components/extras/BodyText";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { formatDate } from "@/lib/common/formatDate";
-import Header from "../components/admin/Header";
 import AdminSearchBar from "../components/admin/AdminSearchBar";
-import FailedMsg from "../components/extras/FailedMsg";
 import AdminButton from "../components/admin/AdminButton";
+import FailedMsg from "../components/ui/FailedMsg";
+import AdminHeader from "../components/admin/AdminHeader";
+import BodyText from "../components/ui/BodyText";
 
 const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -87,7 +87,7 @@ const UsersPage = () => {
 
   const handleEdit = (userId: string) => {
     console.log(userId);
-    router.push(`/edit-user/${userId}`);
+    router.push(`/admin/manage/users/edit/${userId}`);
   };
 
   if (loading && currentPage === 1)
@@ -106,10 +106,8 @@ const UsersPage = () => {
 
   return (
     <View className="flex-1 bg-background">
-      {/* Header */}
-      <Header Heading="Users Management" Body="Manage your users here" />
+      <AdminHeader Heading="Users Management" Body="Manage your users here" />
 
-      {/* Search Bar */}
       <AdminSearchBar
         placeholder="Search by Name"
         onPress={handleSearch}
@@ -117,7 +115,6 @@ const UsersPage = () => {
         value={searchQuery}
       />
 
-      {/* Users List */}
       <View className="flex-1 px-4">
         {loading ? (
           <View className="flex-1 justify-center items-center">
@@ -172,7 +169,6 @@ const UsersPage = () => {
         )}
       </View>
 
-      {/* Pagination Controls */}
       <View className="px-4 py-3 bg-background border-t border-gray-100">
         <View className="flex-row justify-between items-center">
           <TouchableOpacity

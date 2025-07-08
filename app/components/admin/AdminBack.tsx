@@ -1,8 +1,8 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import React from "react";
-import BodyText from "../extras/BodyText";
-import HeadingText from "../extras/HeadingText";
 import { useRouter } from "expo-router";
+import BodyText from "../ui/BodyText";
+import HeadingText from "../ui/HeadingText";
 
 interface AdminBackProps {
   heading: string;

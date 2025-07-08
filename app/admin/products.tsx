@@ -1,27 +1,27 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { View, Alert, FlatList, RefreshControl } from "react-native";
+import React, { useEffect, useState, useMemo } from "react";
+import { View, FlatList, RefreshControl } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { useProductStore } from "@/lib/stores/useProductStores";
-import { DetailedProducts, Products } from "@/type";
-import BodyText from "../components/extras/BodyText";
-import AdminButton from "../components/admin/AdminButton";
-import AdminSearchBar from "../components/admin/AdminSearchBar";
-import Header from "../components/admin/Header";
-import FailedMsg from "../components/extras/FailedMsg";
+import { DetailedProducts } from "@/type";
 import { useRouter } from "expo-router";
 import { getUniqueGames } from "@/lib/common/getUnique";
-import { deleteProduct } from "@/lib/fetcher/productFetch";
-
+import { useAuthStore } from "@/lib/stores/useAuthStore";
+import PaginationControls from "@/app/components/admin/PaginationControls";
+import BodyText from "@/app/components/ui/BodyText";
+import AdminButton from "@/app/components/admin/AdminButton";
+import AdminSearchBar from "@/app/components/admin/AdminSearchBar";
+import AdminHeader from "@/app/components/admin/AdminHeader";
+import FailedMsg from "@/app/components/ui/FailedMsg";
 
 const ProductItem = React.memo(
   ({
     item,
+    isRedirecting,
     onEdit,
-    onDelete,
   }: {
     item: DetailedProducts;
+    isRedirecting: boolean; // ✅ Tambah semicolon
     onEdit: (id: string) => void;
-    onDelete: (product: Products) => void;
   }) => (
     <View className="bg-white border border-gray-100 p-4 mb-3 rounded-xl shadow-sm">
       <View className="flex-row justify-between items-start mb-3">
@@ -78,11 +78,7 @@ const ProductItem = React.memo(
         <AdminButton
           onPress={() => onEdit(item.productId || "")}
           title="Edit"
-        />
-        <AdminButton
-          title="Delete"
-          type="danger"
-          onPress={() => onDelete(item)}
+          disabled={isRedirecting}
         />
       </View>
     </View>
@@ -95,10 +91,12 @@ const AdminProducts = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [selectedGame, setSelectedGame] = useState("all");
-  const [visibleData, setVisibleData] = useState<DetailedProducts[]>([]);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const itemsPerPage = 15;
+  const [currentPage, setCurrentPage] = useState(1);
+  const { isSuperAdmin } = useAuthStore();
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const router = useRouter();
+
+  const itemsPerPage = 15;
 
   useEffect(() => {
     fetchAdminProducts();
@@ -111,10 +109,9 @@ const AdminProducts = () => {
 
   const filteredProducts = useMemo(() => {
     return adminProducts.filter((product) => {
-      const matchesSearch =
-        product.gameName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.gameId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.currency.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = product.gameName
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
       const matchesType = filterType === "all" || product.type === filterType;
       const matchesGame =
         selectedGame === "all" || product.gameId === selectedGame;
@@ -123,98 +120,57 @@ const AdminProducts = () => {
     });
   }, [adminProducts, searchQuery, filterType, selectedGame]);
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
   useEffect(() => {
-    const initialData = filteredProducts.slice(0, itemsPerPage);
-    setVisibleData(initialData);
-  }, [filteredProducts, itemsPerPage]);
+    setCurrentPage(1);
+  }, [searchQuery, filterType, selectedGame]);
 
-  const handleLoadMore = useCallback(() => {
-    if (isLoadingMore || visibleData.length >= filteredProducts.length) {
-      return;
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
+  };
 
-    setIsLoadingMore(true);
-    setTimeout(() => {
-      const currentLength = visibleData.length;
-      const nextData = filteredProducts.slice(0, currentLength + itemsPerPage);
-      setVisibleData(nextData);
-      setIsLoadingMore(false);
-    }, 300);
-  }, [filteredProducts, visibleData.length, itemsPerPage, isLoadingMore]);
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
-  const handleAddProduct = useCallback(() => {
-    router.push("/manage-products/add-products/AddProducts");
-  }, [router]);
+  const handleAddProduct = () => {
+    setIsRedirecting(true);
+    router.push("/admin/manage/products/add/AddProducts");
+    setTimeout(() => setIsRedirecting(false), 1000);
+  };
 
-  const handleEditProduct = useCallback(
-    (productId: string) => {
-      router.push(`/manage-products/edit-products/${productId}`);
-    },
-    [router],
-  );
+  const handleEditProduct = (productId: string) => {
+    setIsRedirecting(true);
+    router.push(`/admin/manage/products/edit/${productId}`);
+    setTimeout(() => setIsRedirecting(false), 1000);
+  };
 
-  const handleDeleteProduct = useCallback(
-    (product: Products) => {
-      Alert.alert(
-        "Delete Product",
-        `Are you sure you want to delete ${product.gameName} - ${product.value} ${product.currency}?`,
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Delete",
-            style: "destructive",
-            onPress: async () => {
-              await deleteProduct(product.productId);
-              fetchAdminProducts(true);
-            },
-          },
-        ],
-      );
-    },
-    [fetchAdminProducts],
-  );
-
-  const handleRefresh = useCallback(() => {
+  const handleRefresh = () => {
     fetchAdminProducts(true);
-  }, [fetchAdminProducts]);
+  };
 
-  const keyExtractor = useCallback(
-    (item: DetailedProducts, index: number) =>
-      `${item.productId || item.gameId}-${item.value}-${index}`,
-    [],
+  const renderItem = ({ item }: { item: DetailedProducts }) => (
+    <ProductItem
+      isRedirecting={isRedirecting}
+      item={item}
+      onEdit={handleEditProduct}
+    />
   );
 
-  const renderItem = useCallback(
-    ({ item }: { item: DetailedProducts }) => (
-      <ProductItem
-        item={item}
-        onEdit={handleEditProduct}
-        onDelete={handleDeleteProduct}
-      />
-    ),
-    [handleEditProduct, handleDeleteProduct],
+  const ListEmptyComponent = () => (
+    <View className="flex-1 justify-center items-center py-20">
+      <BodyText className="text-gray-500">No products found</BodyText>
+    </View>
   );
-
-  const ListEmptyComponent = useCallback(
-    () => (
-      <View className="flex-1 justify-center items-center py-20">
-        <BodyText className="text-gray-500">No products found</BodyText>
-      </View>
-    ),
-    [],
-  );
-
-  // Loading footer untuk lazy loading
-  const ListFooterComponent = useCallback(() => {
-    if (!isLoadingMore || visibleData.length >= filteredProducts.length) {
-      return null;
-    }
-    return (
-      <View className="py-4 items-center">
-        <BodyText className="text-gray-500">Loading more...</BodyText>
-      </View>
-    );
-  }, [isLoadingMore, visibleData.length, filteredProducts.length]);
 
   if (loading && adminProducts.length === 0) {
     return (
@@ -234,7 +190,7 @@ const AdminProducts = () => {
 
   return (
     <View className="flex-1 bg-background">
-      <Header Heading="Product Management" Body="Manage your products here" />
+      <AdminHeader Heading="Product Management" Body="Manage your products here" />
 
       <AdminSearchBar
         placeholder="Search by game name, ID, or currency"
@@ -273,35 +229,42 @@ const AdminProducts = () => {
         </View>
       </View>
 
-      <View className="px-4 mb-4 gap-2 flex-row">
-        <AdminButton onPress={handleAddProduct} title="Add new Product" />
-      </View>
+      {isSuperAdmin && (
+        <View className="px-4 mb-4 gap-2 flex-row">
+          <AdminButton
+            onPress={handleAddProduct}
+            disabled={isRedirecting}
+            title="Add new Product"
+          />
+        </View>
+      )}
 
       <View className="flex-1 px-4">
         <BodyText className="text-gray-600 text-sm mb-3">
-          Showing {visibleData.length} of {filteredProducts.length} products
+          Showing {currentProducts.length} of {filteredProducts.length} products
+          {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
         </BodyText>
 
         <FlatList
-          data={visibleData}
-          keyExtractor={keyExtractor}
+          data={currentProducts}
+          keyExtractor={(item, index) => `${item.productId}-${index}`}
           renderItem={renderItem}
           ListEmptyComponent={ListEmptyComponent}
-          ListFooterComponent={ListFooterComponent}
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
           }
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-          removeClippedSubviews={true} 
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50} 
-          windowSize={10} 
-          initialNumToRender={itemsPerPage} 
-          getItemLayout={undefined}
         />
       </View>
+
+      {totalPages > 1 && (
+        <PaginationControls
+          onPressNext={handleNextPage}
+          onPressPrevious={handlePrevPage}
+          disabled={currentPage >= totalPages}
+          currentPage={currentPage}
+        />
+      )}
     </View>
   );
 };

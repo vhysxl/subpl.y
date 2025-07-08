@@ -12,10 +12,10 @@ import { Picker } from "@react-native-picker/picker";
 import { Ionicons } from "@expo/vector-icons";
 import { Orders } from "@/type";
 import { fetchAllOrders, updateOrders } from "@/lib/fetcher/ordersFetch";
-import BodyText from "../components/extras/BodyText";
-import Header from "../components/admin/Header";
 import { formatDate } from "@/lib/common/formatDate";
-import PaginationControls from "../components/admin/PaginationControls";
+import AdminHeader from "@/app/components/admin/AdminHeader";
+import PaginationControls from "@/app/components/admin/PaginationControls";
+import BodyText from "@/app/components/ui/BodyText";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState<Orders[]>([]);
@@ -350,7 +350,7 @@ const OrdersPage = () => {
 
   return (
     <View className="flex-1 bg-backgroundSecondary">
-      <Header Heading="Orders" Body="Manage user orders here" />
+      <AdminHeader Heading="Orders" Body="Manage user orders here" />
 
       <View className="px-4 mb-4">
         <BodyText className="text-text font-medium mb-2">

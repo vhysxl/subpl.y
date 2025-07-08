@@ -11,7 +11,7 @@ export const useAuthGuard = () => {
       if (!user) {
         router.push("/auth/login");
       }
-    }, [user]), //redirect langsung malah crash jadi harus pake ini
+    }, [user]),
   );
 
   return;

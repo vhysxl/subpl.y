@@ -1,6 +1,6 @@
 import { View, TouchableOpacity, ActivityIndicator } from "react-native";
 import React from "react";
-import BodyText from "../extras/BodyText";
+import BodyText from "../ui/BodyText";
 
 type MessageType = "normal" | "danger" | "secondary" | "third";
 

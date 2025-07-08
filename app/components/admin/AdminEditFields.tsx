@@ -5,7 +5,7 @@ import {
   TextInputProps,
 } from "react-native";
 import React, { Dispatch, SetStateAction } from "react";
-import BodyText from "../extras/BodyText";
+import BodyText from "../ui/BodyText";
 
 interface AdminEditFieldsProps {
   title: string;

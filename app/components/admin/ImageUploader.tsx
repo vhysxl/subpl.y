@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { View, Alert, Image, ActivityIndicator } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { TouchableOpacity } from "react-native";
-import BodyText from "@/app/components/extras/BodyText";
 import { getCloudinarySignature } from "@/lib/fetcher/uploadImageFetch";
+import BodyText from "../ui/BodyText";
 
 interface ImageUploaderProps {
   currentImageUrl?: string;

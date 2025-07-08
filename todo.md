@@ -1,5 +1,4 @@
-font order belum bener
-view all belum
-di popular games belum redirect ke dynamic
-review kode lagi cok
+edit pw
+ganti combo ke select
+tambah ama delete only superadmin
 

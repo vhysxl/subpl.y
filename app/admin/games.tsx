@@ -2,12 +2,12 @@ import { View, FlatList, RefreshControl, Image } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { fetchGames } from "@/lib/fetcher/gamesFetch";
 import { Games } from "@/type";
-import BodyText from "../components/extras/BodyText";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
-import Header from "../components/admin/Header";
-import FailedMsg from "../components/extras/FailedMsg";
-import AdminButton from "../components/admin/AdminButton";
+import AdminButton from "@/app/components/admin/AdminButton";
+import Header from "@/app/components/admin/AdminHeader";
+import BodyText from "@/app/components/ui/BodyText";
+import FailedMsg from "@/app/components/ui/FailedMsg";
 
 const GamesPage = () => {
   const [games, setGames] = useState<Games[]>([]);
@@ -42,7 +42,7 @@ const GamesPage = () => {
     (gameId: string) => {
       const gameData = games.find((g) => g.gameId === gameId);
       router.push({
-        pathname: `/manage-games/edit-games/${gameId}`,
+        pathname: `/admin/manage/games/edit/${gameId}`,
         params: {
           gameData: JSON.stringify(gameData),
         },
@@ -52,7 +52,7 @@ const GamesPage = () => {
   );
 
   const handleAddGame = () => {
-    router.push("/manage-games/add-games/AddGames");
+    router.push("/admin/manage/games/add/AddGames");
   };
 
   if (loading)
