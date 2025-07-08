@@ -31,7 +31,7 @@ export default function GameDetail() {
 
   const options = game.products;
 
-  useBackHandler("/(tabs)/games");
+  useBackHandler("/(main)/(tabs)/games");
 
   const handleOrder = () => {
     if (!user) return router.push("/login");

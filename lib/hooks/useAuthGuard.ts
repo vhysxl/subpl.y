@@ -9,7 +9,7 @@ export const useAuthGuard = () => {
   useFocusEffect(
     useCallback(() => {
       if (!user) {
-        router.push("/auth/login");
+        router.push("/(auth)/login");
       }
     }, [user]),
   );

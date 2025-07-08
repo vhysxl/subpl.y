@@ -5,7 +5,7 @@ import { RelativePathString, useRouter } from "expo-router";
 type AllowedPaths =
   | "/"
   | "/admin/users"
-  | "/(tabs)/games"
+  | "/(main)/(tabs)/games"
   | "/login"
   | `/game/${string}`;
 
