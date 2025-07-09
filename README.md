@@ -1,6 +1,6 @@
 # 📱 Subply Mobile App
 
-Subply is a React Native (Expo) application for purchasing **game top-ups** and **digital vouchers**, powered by the [Subply API](https://github.com/your-org/subply-api).
+Subply is a React Native (Expo) application for purchasing **game top-ups** and **digital vouchers**, powered by the [Subply API](https://github.com/vhysxl/subply-api).
 
 ---
 

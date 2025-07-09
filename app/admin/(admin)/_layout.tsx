@@ -9,7 +9,7 @@ const AdminLayout = () => {
   const { isAdmin, isSuperAdmin, user } = useAuthStore();
   const router = useRouter();
 
-  //disable backhandler
+  //matikan backhanlder
   useFocusEffect(
     React.useCallback(() => {
       if (isAdmin || isSuperAdmin) {

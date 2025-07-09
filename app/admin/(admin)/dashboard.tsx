@@ -7,11 +7,11 @@ import { AuditLog, DashboardStats } from "@/type";
 import { auditFetch } from "@/lib/fetcher/auditFetch";
 import { formatDate } from "@/lib/common/formatDate";
 import { useAuthGuard } from "@/lib/hooks/useAuthGuard";
+import AdminHeader from "@/app/components/admin/AdminHeader";
 import PaginationControls from "@/app/components/admin/PaginationControls";
 import AdminButton from "@/app/components/admin/AdminButton";
 import FailedMsg from "@/app/components/ui/FailedMsg";
 import BodyText from "@/app/components/ui/BodyText";
-import AdminHeader from "@/app/components/admin/AdminHeader";
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -39,7 +39,7 @@ const Dashboard = () => {
     }
   };
 
-  //ini aduit woi
+  //ini audit logs
   const fetchAuditLogs = async (page: number = 1) => {
     try {
       setAuditLoading(true);
