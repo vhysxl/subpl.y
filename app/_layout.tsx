@@ -55,16 +55,7 @@ export default function RootLayout() {
         statusBarStyle: "light",
         statusBarBackgroundColor: "#000000",
       }}>
-      <Stack.Screen
-        name="OrderModal"
-        options={{
-          presentation: "modal",
-          animation: "slide_from_bottom",
-        }}
-      />
-      <Stack.Screen name="admin" />
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="(orders)" />
+      <Stack.Screen name="(auth)" />
     </Stack>
   );
 }

@@ -6,6 +6,6 @@ export const handleGameRedirect = (
   setRedirecting: React.Dispatch<React.SetStateAction<boolean>>,
 ) => {
   setRedirecting(true);
-  router.push(`/game/${gameId}`);
+  router.push(`/(main)/game/detail/${gameId}`);
   setTimeout(() => setRedirecting(false), 1000);
 };

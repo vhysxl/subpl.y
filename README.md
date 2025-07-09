@@ -70,4 +70,4 @@ npx expo start --tunnel
 ```
 
 # TL;DR 
-```This project messy```
+```The app is functionally complete, but the codebase is still messy and will be cleaned up over time.```

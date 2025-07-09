@@ -4,9 +4,9 @@ import { Picker } from "@react-native-picker/picker";
 import Header from "@/app/components/admin/AdminHeader";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
-import BodyText from "@/app/components/extras/BodyText";
-import HeadingText from "@/app/components/extras/HeadingText";
-import SystemMsg from "@/app/components/extras/SystemMsg";
+import SystemMsg from "@/app/components/ui/SystemMsg";
+import HeadingText from "@/app/components/ui/HeadingText";
+import BodyText from "@/app/components/ui/BodyText";
 import AdminButton from "@/app/components/admin/AdminButton";
 import AdminEditFields from "@/app/components/admin/AdminEditFields";
 import { createProduct } from "@/lib/fetcher/productFetch";
@@ -14,8 +14,8 @@ import { productSchema } from "@/lib/validation/validation";
 import { validateWithZod } from "@/lib/common/validator";
 import { useAutoDismissMessage } from "@/lib/hooks/useDismissMessage";
 import { fetchGames } from "@/lib/fetcher/gamesFetch";
-import FailedMsg from "@/app/components/extras/FailedMsg";
 import { Games } from "@/type";
+import FailedMsg from "@/app/components/ui/FailedMsg";
 
 enum ProductType {
   TOPUP = "topup",

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { TouchableOpacity, View, Image } from "react-native";
 import { useRouter } from "expo-router";
-import BodyText from "../extras/BodyText";
 import { colors } from "@/constants/colors";
 import { handleGameRedirect } from "@/lib/common/gameRedirect";
 import { GameGroup } from "@/type";
+import BodyText from "../ui/BodyText";
 
 const GameGridItem = ({ game }: { game: GameGroup }) => {
   const router = useRouter();

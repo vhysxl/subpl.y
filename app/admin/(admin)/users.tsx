@@ -5,11 +5,11 @@ import { User } from "@/type";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { formatDate } from "@/lib/common/formatDate";
-import AdminSearchBar from "../components/admin/AdminSearchBar";
-import AdminButton from "../components/admin/AdminButton";
-import FailedMsg from "../components/ui/FailedMsg";
-import AdminHeader from "../components/admin/AdminHeader";
-import BodyText from "../components/ui/BodyText";
+import AdminSearchBar from "../../components/admin/AdminSearchBar";
+import AdminButton from "../../components/admin/AdminButton";
+import FailedMsg from "../../components/ui/FailedMsg";
+import AdminHeader from "../../components/admin/AdminHeader";
+import BodyText from "../../components/ui/BodyText";
 
 const UsersPage = () => {
   const [users, setUsers] = useState<User[]>([]);
