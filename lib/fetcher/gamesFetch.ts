@@ -10,6 +10,7 @@ export const fetchGames = async (): Promise<Games[]> => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -42,6 +43,7 @@ export const createGames = async (
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify(gamesData),
     });
@@ -76,6 +78,7 @@ export const updateGame = async (
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify(updateData),
     });
@@ -108,6 +111,7 @@ export const deleteGame = async (
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 

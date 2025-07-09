@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { WebView } from "react-native-webview";
-import { StyleSheet } from "react-native";
+import { BackHandler, StyleSheet } from "react-native";
 import Constants from "expo-constants";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useProductStore } from "@/lib/stores/useProductStores";
+import { useBackHandler } from "@/lib/hooks/useBackHandler";
 
 const PaymentScreen = () => {
   const router = useRouter();
@@ -18,20 +19,20 @@ const PaymentScreen = () => {
     return <Redirect href="/" />;
   }
 
+  useBackHandler("/(main)/orders");
+
   const handleNavigationChange = async (navState: any) => {
     const url = navState.url;
 
-    if (url.includes("success")) {
-      router.replace("/(main)/checkout/Success");
-    } else if (
-      url === "https://simulator.sandbox.midtrans.com/v2/deeplink/payment"
-    ) {
+    if (!url) return;
+
+    if (url.includes("rampung")) {
       try {
         await fetchProducts();
       } catch (error) {
         console.error("Failed to refresh products:", error);
       } finally {
-        router.replace("/");
+        router.replace("/(main)/orders");
       }
     }
   };

@@ -7,6 +7,7 @@ type AllowedPaths =
   | "/admin/users"
   | "/(main)/(tabs)/games"
   | "/login"
+  | "/(main)/orders"
   | `/game/${string}`;
 
 export function useBackHandler(path: AllowedPaths) {

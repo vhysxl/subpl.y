@@ -9,6 +9,7 @@ export const fetchDashboard = async () => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -34,6 +35,7 @@ export const monthlyReport = async (year: number, month: number) => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
         },
       },
     );

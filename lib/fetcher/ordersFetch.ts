@@ -7,7 +7,10 @@ export const fetchOrders = async (userId: string): Promise<Orders[]> => {
     const config = await fetchConfig();
     const token = await AsyncStorage.getItem("token");
     const response = await fetch(`${config.apiUrl}/orders?userId=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
+      },
     });
 
     if (!response.ok) {
@@ -35,6 +38,7 @@ export const fetchDetailsOrder = async (orderId: string): Promise<Orders> => {
     const response = await fetch(`${config.apiUrl}/orders/${orderId}/details`, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -60,6 +64,7 @@ export const fetchAllOrders = async (page: number = 1): Promise<Orders[]> => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
+          "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
         },
       },
     );
@@ -94,6 +99,7 @@ export const updateOrders = async (
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify({ status }),
     });
@@ -120,6 +126,7 @@ export const getOrderDetail = async (orderId: string) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -145,6 +152,7 @@ export const cancelOrder = async (orderId: string) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       method: "PATCH",
     });

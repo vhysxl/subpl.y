@@ -9,6 +9,7 @@ export const getCloudinarySignature = async () => {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 

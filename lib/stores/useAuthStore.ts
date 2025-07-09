@@ -29,6 +29,7 @@ export const useAuthStore = create<AuthStore>((set) => ({
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
+            "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
           },
         });
 

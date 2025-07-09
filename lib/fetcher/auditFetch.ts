@@ -10,6 +10,7 @@ export const auditFetch = async (page: number) => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -19,6 +20,6 @@ export const auditFetch = async (page: number) => {
     return result.data;
   } catch (error) {
     console.error(error);
-    throw new Error(`Failed to fetch users: ${error}`);
+    throw new Error(`Failed to fetch audit logs: ${error}`);
   }
 };

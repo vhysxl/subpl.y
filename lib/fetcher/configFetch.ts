@@ -5,6 +5,7 @@ export const fetchConfig = async () => {
     headers: {
       "Cache-Control": "no-cache", //biar update
       Pragma: "no-cache",
+      "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
     },
   });
   const config = await res.json();

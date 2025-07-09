@@ -13,21 +13,18 @@ const PaymentSuccess = () => {
           <Ionicons name="checkmark-circle-outline" size={40} color="#17d171" />
         </View>
         <Text className="text-2xl font-bold text-text text-center">
-          Payment Successful
+          Thanks for Your Order!
         </Text>
         <Text className="text-secondary text-center mt-1">
-          Thank you! Your order has been processed successfully.
+          You can see your order in Profile → My Orders.
         </Text>
       </View>
 
       <View className="bg-backgroundSecondary rounded-xl p-5 mb-6">
-        <Text className="text-text font-semibold text-lg mb-3">
-          What’s Next?
-        </Text>
+        <Text className="text-text font-semibold text-lg mb-3">Need Help?</Text>
         <Text className="text-secondary">
-          You will receive your voucher or game credit shortly. If you encounter
-          any issues, please contact the admin. You can also check the status of
-          your order in the My Orders section on your profile.
+          If payment failed, you can retry from Profile → My Orders. For any
+          issues, please contact the admin.
         </Text>
       </View>
 

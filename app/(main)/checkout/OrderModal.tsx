@@ -9,24 +9,22 @@ import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useAuthStore } from "@/lib/stores/useAuthStore";
 import { useConfigStore } from "@/lib/stores/useConfigStore";
 import BodyText from "@/app/components/ui/BodyText";
 import HeadingText from "@/app/components/ui/HeadingText";
+import SystemMsg from "@/app/components/ui/SystemMsg";
 
 const OrderModal = () => {
   const [status, setStatus] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const params = useLocalSearchParams();
   const { gameId, target, value, type, gameName, price, quantity, currency } =
     params;
-  const { user } = useAuthStore();
   const { apiUrl } = useConfigStore();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
 
   const totalPrice = Number(price) * Number(quantity);
 
-  //initializator
   const properties = [
     { label: "Game ID", key: "gameId" },
     { label: "Target", key: "target" },
@@ -37,7 +35,6 @@ const OrderModal = () => {
     { label: "Quantity", key: "quantity" },
   ];
 
-  //cleanup logic
   useFocusEffect(
     useCallback(() => {
       return () => {
@@ -46,10 +43,8 @@ const OrderModal = () => {
     }, []),
   );
 
-  //order handler
   const handleOrder = async () => {
     if (isLoading) return;
-
     setIsLoading(true);
 
     const token = await AsyncStorage.getItem("token");
@@ -60,6 +55,7 @@ const OrderModal = () => {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
+          "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
         },
         body: JSON.stringify({
           gameId,
@@ -73,10 +69,13 @@ const OrderModal = () => {
 
       const result = await response.json();
 
-      console.log(result);
+      if (response.status === 429) {
+        setStatus("You're doing that too often. Please wait a moment.");
+        return;
+      }
 
-      if (!result.data.payment.redirect_url) {
-        setStatus(status);
+      if (!result?.data?.payment?.redirect_url) {
+        setStatus("Failed to create order. Please try again.");
         return;
       }
 
@@ -86,8 +85,9 @@ const OrderModal = () => {
       });
     } catch (error) {
       console.error(error);
-      setStatus("Failed to create order");
-      return;
+      setStatus("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -144,7 +144,7 @@ const OrderModal = () => {
         </View>
       </View>
 
-      <View className="space-y-3 mt-auto">
+      <View className="space-y-3 mt-auto mb-4">
         <TouchableOpacity
           className={`border py-4 rounded-xl ${
             isLoading
@@ -159,6 +159,8 @@ const OrderModal = () => {
               : `Confirm & Pay Rp${totalPrice.toLocaleString()}`}
           </Text>
         </TouchableOpacity>
+
+        {status ? <SystemMsg message={status} type="error" /> : null}
 
         <TouchableWithoutFeedback
           onPress={() => router.back()}

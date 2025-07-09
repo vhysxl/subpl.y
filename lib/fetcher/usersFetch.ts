@@ -11,6 +11,7 @@ export const userFetch = async (page: number): Promise<User[] | null> => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -33,6 +34,7 @@ export const getUserById = async (userId: string): Promise<User> => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -63,6 +65,7 @@ export const updateUser = async (
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify(userData),
     });
@@ -94,6 +97,7 @@ export const upateProfile = async (
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify(userData),
     });
@@ -119,6 +123,7 @@ export const deleteUser = async (userId: string): Promise<string> => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -142,6 +147,7 @@ export const searchUser = async (name: string): Promise<User[]> => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -173,6 +179,7 @@ export const changePassword = async (
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify({
         newPassword,

@@ -5,7 +5,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 export const fetchProducts = async (): Promise<Products[] | null> => {
   try {
     const config = await fetchConfig();
-    const response = await fetch(`${config.apiUrl}/products`);
+    const response = await fetch(`${config.apiUrl}/products`, {
+      headers: {
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch products");
@@ -34,6 +38,7 @@ export const fetchAdminProducts = async (): Promise<
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -60,6 +65,7 @@ export const createProduct = async (
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify(productData),
     });
@@ -88,6 +94,7 @@ export const updateProduct = async (
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
       body: JSON.stringify(updateData),
     });
@@ -114,6 +121,7 @@ export const deleteProduct = async (
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 

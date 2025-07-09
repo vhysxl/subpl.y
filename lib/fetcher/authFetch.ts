@@ -6,10 +6,14 @@ export const register = async (
   password: string,
 ) => {
   const config = await fetchConfig();
+
+  console.log(process.env.EXPO_PUBLIC_API_KEY);
+
   const response = await fetch(`${config.apiUrl}/auth/register`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
     },
     body: JSON.stringify({
       name,
@@ -21,7 +25,6 @@ export const register = async (
   const result = await response.json();
 
   if (!response.ok) {
-    // Throw error dengan message dari server
     throw new Error(result.message || "Registration failed");
   }
 
@@ -30,10 +33,12 @@ export const register = async (
 
 export const loginReq = async (email: string, password: string) => {
   const config = await fetchConfig();
+
   const response = await fetch(`${config.apiUrl}/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
     },
     body: JSON.stringify({
       email,
@@ -44,8 +49,7 @@ export const loginReq = async (email: string, password: string) => {
   const result = await response.json();
 
   if (!response.ok) {
-    // Throw error dengan message dari server
-    throw new Error(result.message || "Registration failed");
+    throw new Error(result.message || "Login failed");
   }
 
   return result;

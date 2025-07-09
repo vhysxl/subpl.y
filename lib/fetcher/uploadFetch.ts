@@ -12,6 +12,7 @@ export const getUploadSignature = async () => {
     const response = await fetch(`${config.apiUrl}/upload`, {
       headers: {
         Authorization: `Bearer ${token}`,
+        "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
       },
     });
 
@@ -49,6 +50,7 @@ export const uploadImageToCloudinary = async (imageUri: string) => {
         body: formData,
         headers: {
           "Content-Type": "multipart/form-data",
+          "x-api-key": process.env.EXPO_PUBLIC_API_KEY!,
         },
       },
     );
